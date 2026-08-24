@@ -1,0 +1,795 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Control de Miembros y Asistencia</title>
+
+    <link rel="stylesheet" href="style.css">
+
+    <!-- SUPABASE -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+
+<body>
+<!-- =====================================================
+     PANTALLA DE INICIO DE SESIÓN
+     ===================================================== -->
+
+<section id="pantallaLogin" class="pantalla-login">
+
+    <div class="login-card">
+
+        <div class="login-icon">
+            🔐
+        </div>
+
+        <h1>
+            Iniciar sesión
+        </h1>
+
+        <p class="login-subtitulo">
+            Control de Miembros y Asistencia
+        </p>
+
+        <form id="formLogin">
+
+            <div class="login-campo">
+
+                <label for="loginEmail">
+                    Correo electrónico
+                </label>
+
+                <input
+                    type="email"
+                    id="loginEmail"
+                    placeholder="correo@ejemplo.com"
+                    autocomplete="email"
+                    required
+                >
+
+            </div>
+
+
+            <div class="login-campo">
+
+                <label for="loginPassword">
+                    Contraseña
+                </label>
+
+                <input
+                    type="password"
+                    id="loginPassword"
+                    placeholder="Ingrese su contraseña"
+                    autocomplete="current-password"
+                    required
+                >
+
+            </div>
+
+
+            <button
+                type="submit"
+                id="btnLogin"
+                class="btn-login"
+            >
+                🔐 Iniciar sesión
+            </button>
+
+        </form>
+
+
+        <div
+            id="mensajeLogin"
+            class="mensaje-login"
+        ></div>
+
+    </div>
+
+</section>
+
+
+<!-- =====================================================
+     INFORMACIÓN DEL USUARIO CONECTADO
+     ===================================================== -->
+
+<div
+    id="usuarioConectado"
+    class="usuario-conectado"
+    style="display:none;"
+>
+
+    <div>
+
+        👤
+        <strong id="nombreUsuario">
+            Usuario
+        </strong>
+
+        <span
+            id="rolUsuario"
+            class="rol-usuario"
+        >
+            Rol
+        </span>
+
+    </div>
+
+
+    <button
+        type="button"
+        id="btnCerrarSesion"
+        class="btn-cerrar-sesion"
+    >
+        🚪 Cerrar sesión
+    </button>
+
+</div>
+<header>
+    <h1>Control de Miembros y Asistencia</h1>
+    <p>Registro de miembros, asistencia y reportes</p>
+</header>
+
+
+<main>
+
+
+    <!-- ==========================================
+         FILA SUPERIOR
+    ========================================== -->
+    <div class="paneles-superiores">
+
+<!-- NUEVO MIEMBRO -->
+        <section class="formulario">
+
+        <h2>Nuevo miembro</h2>
+
+        <form id="memberForm">
+
+            <div class="campo">
+                <label for="nombre">Nombre completo</label>
+
+                <input
+                    type="text"
+                    id="nombre"
+                    placeholder="Ej. Juan Pérez"
+                    required
+                >
+            </div>
+
+
+            <div class="campo">
+                <label for="telefono">Número de teléfono</label>
+
+                <input
+                    type="tel"
+                    id="telefono"
+                    placeholder="Ej. 809-555-1234"
+                >
+            </div>
+
+
+            <div class="campo">
+                <label for="ministerio">Ministerio</label>
+
+                <select id="ministerio" required>
+
+                    <option value="">
+                        Seleccione un ministerio
+                    </option>
+
+                    <option value="Caballeros">
+                        Caballeros
+                    </option>
+
+                    <option value="Damas">
+                        Damas
+                    </option>
+
+                    <option value="Jóvenes">
+                        Jóvenes
+                    </option>
+
+                    <option value="Niños">
+                        Niños
+                    </option>
+
+                    <option value="Adoración">
+                        Adoración
+                    </option>
+
+                    <option value="Evangelismo">
+                        Evangelismo
+                    </option>
+
+                    <option value="Ujieres">
+                        Ujieres
+                    </option>
+
+                    <option value="Otro">
+                        Otro
+                    </option>
+
+                </select>
+            </div>
+
+
+            <div class="campo">
+
+                <label for="foto">
+                    Foto del miembro
+                </label>
+
+                <input
+                    type="file"
+                    id="foto"
+                    accept="image/*"
+                >
+
+            </div>
+
+
+
+
+
+            <div class="campo">
+
+                <label>
+                    Días que asiste normalmente
+                </label>
+
+                <div class="dias">
+
+                    <label>
+                        <input
+                            type="checkbox"
+                            name="dias"
+                            value="lunes"
+                        >
+                        Lunes
+                    </label>
+
+
+                    <label>
+                        <input
+                            type="checkbox"
+                            name="dias"
+                            value="martes"
+                        >
+                        Martes
+                    </label>
+
+
+                    <label>
+                        <input
+                            type="checkbox"
+                            name="dias"
+                            value="miercoles"
+                        >
+                        Miércoles
+                    </label>
+
+
+                    <label>
+                        <input
+                            type="checkbox"
+                            name="dias"
+                            value="jueves"
+                        >
+                        Jueves
+                    </label>
+
+
+                    <label>
+                        <input
+                            type="checkbox"
+                            name="dias"
+                            value="viernes"
+                        >
+                        Viernes
+                    </label>
+
+
+                    <label>
+                        <input
+                            type="checkbox"
+                            name="dias"
+                            value="sabado"
+                        >
+                        Sábado
+                    </label>
+
+
+                    <label>
+                        <input
+                            type="checkbox"
+                            name="dias"
+                            value="domingo"
+                        >
+                        Domingo
+                    </label>
+
+                </div>
+
+            </div>
+
+
+            <button
+                type="submit"
+                class="btn-guardar"
+            >
+                💾 Guardar miembro
+            </button>
+
+        </form>
+
+    </section>
+
+
+
+        <!-- MIEMBROS REGISTRADOS -->
+        <section class="miembros" id="seccionMiembrosRegistrados">
+
+  <div class="titulo-miembros">
+    <h2>👥 Miembros registrados</h2>
+    <span id="totalMiembros">0</span>
+</div>
+
+    <div class="busqueda">
+        <input
+            type="search"
+            id="buscar"
+            placeholder="🔎 Buscar por nombre..."
+        >
+    </div>
+
+            <div id="listaMiembros">
+                <p class="mensaje">
+
+</div>
+</section>
+
+          
+    <!-- ==========================================
+         CONTROL DE ASISTENCIA
+    =========================================== -->
+    <section
+        class="asistencia"
+        id="seccionAsistencia"
+    >
+
+        <div class="asistencia-contenedor">
+
+        <h2>📋 Control de Asistencia</h2>
+
+        <p class="subtitulo-asistencia">
+            Registre la asistencia de los miembros por fecha y servicio.
+        </p>
+
+        <!-- FECHA Y SERVICIO -->
+
+        <div class="filtros-asistencia">
+
+            <div class="campo-asistencia">
+
+                <label for="fechaAsistencia">
+                    📅 Fecha
+                </label>
+
+                <input
+                    type="date"
+                    id="fechaAsistencia"
+                >
+
+            </div>
+
+
+            <div class="campo-asistencia">
+
+                <label for="servicioAsistencia">
+                    ⛪ Servicio / Reunión
+                </label>
+
+                <select id="servicioAsistencia">
+
+                    <option value="">
+                        Seleccione un servicio
+                    </option>
+
+                    <option value="domingo">
+                        Culto Domingo
+                    </option>
+
+                    <option value="miercoles">
+                        Culto Miércoles
+                    </option>
+
+                    <option value="viernes">
+                        Culto Viernes
+                    </option>
+
+                    <option value="jovenes">
+                        Jóvenes
+                    </option>
+
+                    <option value="caballeros">
+                        Caballeros
+                    </option>
+
+                    <option value="damas">
+                        Damas
+                    </option>
+
+                    <option value="otro">
+                        Otro
+                    </option>
+
+                </select>
+
+            </div>
+
+        </div>
+
+
+        <!-- BOTÓN CARGAR -->
+
+        <div class="botones-asistencia">
+
+            <button
+                type="button"
+                id="btnCargarAsistencia"
+                class="btn-cargar-asistencia"
+            >
+                📋 Cargar miembros
+            </button>
+
+        </div>
+
+
+        <!-- LISTA -->
+
+        <div
+            id="listaAsistencia"
+            class="lista-asistencia"
+        >
+
+            <p class="mensaje">
+                Seleccione una fecha y un servicio para cargar la asistencia.
+            </p>
+
+        </div>
+
+
+        <!-- GUARDAR -->
+
+        <div class="botones-asistencia">
+
+            <button
+                type="button"
+                id="btnGuardarAsistencia"
+                class="btn-guardar-asistencia"
+            >
+                💾 Guardar asistencia
+            </button>
+
+        </div>
+
+    </div>
+
+</section>
+<!-- ==========================================
+     MODAL EDITAR MIEMBRO
+========================================== -->
+
+<div id="modalEditar" class="modal">
+
+    <div class="modal-contenido">
+
+        <div class="modal-header">
+
+            <h2>✏️ Editar miembro</h2>
+
+            <button
+                type="button"
+                id="btnCerrarModal"
+                class="btn-cerrar"
+            >
+                ✕
+            </button>
+
+        </div>
+
+        <form id="formEditarMiembro">
+
+            <input
+                type="hidden"
+                id="editarId"
+            >
+
+            <div class="campo">
+
+                <label for="editarNombre">
+                    Nombre completo
+                </label>
+
+                <input
+                    type="text"
+                    id="editarNombre"
+                    placeholder="Ej. Juan Pérez"
+                    required
+                >
+
+            </div>
+
+            <div class="campo">
+
+                <label for="editarTelefono">
+                    Número de teléfono
+                </label>
+
+                <input
+                    type="tel"
+                    id="editarTelefono"
+                    placeholder="Ej. 809-555-1234"
+                >
+
+            </div>
+
+            <div class="campo">
+
+                <label for="editarMinisterio">
+                    Ministerio
+                </label>
+
+                <select id="editarMinisterio" required>
+
+                    <option value="">
+                        Seleccione un ministerio
+                    </option>
+
+                    <!-- COLOCA AQUÍ LAS MISMAS OPCIONES
+                         DEL FORMULARIO NUEVO MIEMBRO -->
+
+                    <option value="Caballeros">
+                        Caballeros
+                    </option>
+
+                    <option value="Damas">
+                        Damas
+                    </option>
+
+                    <option value="Jóvenes">
+                        Jóvenes
+                    </option>
+
+                    <option value="Niños">
+                        Niños
+                    </option>
+
+                    <option value="Adoración">
+                        Adoración
+                    </option>
+
+                </select>
+
+            </div>
+
+            <div class="campo">
+
+                <label for="editarFoto">
+                    Cambiar foto
+                </label>
+
+                <input
+                    type="file"
+                    id="editarFoto"
+                    accept="image/*"
+                >
+
+            </div>
+
+            <div id="editarPreviewContainer">
+
+                <img
+                    id="editarPreview"
+                    src=""
+                    alt="Vista previa"
+                >
+
+            </div>
+
+            <div class="campo">
+
+                <label>
+                    Días que asiste normalmente
+                </label>
+
+                <div class="dias">
+
+                    <label>
+                        <input
+                            type="checkbox"
+                            name="editarDias"
+                            value="lunes"
+                        >
+                        Lunes
+                    </label>
+
+                    <label>
+                        <input
+                            type="checkbox"
+                            name="editarDias"
+                            value="martes"
+                        >
+                        Martes
+                    </label>
+
+                    <label>
+                        <input
+                            type="checkbox"
+                            name="editarDias"
+                            value="miercoles"
+                        >
+                        Miércoles
+                    </label>
+
+                    <label>
+                        <input
+                            type="checkbox"
+                            name="editarDias"
+                            value="jueves"
+                        >
+                        Jueves
+                    </label>
+
+                    <label>
+                        <input
+                            type="checkbox"
+                            name="editarDias"
+                            value="viernes"
+                        >
+                        Viernes
+                    </label>
+
+                    <label>
+                        <input
+                            type="checkbox"
+                            name="editarDias"
+                            value="sabado"
+                        >
+                        Sábado
+                    </label>
+
+                    <label>
+                        <input
+                            type="checkbox"
+                            name="editarDias"
+                            value="domingo"
+                        >
+                        Domingo
+                    </label>
+
+                </div>
+
+            </div>
+
+            <div class="modal-botones">
+
+                <button
+                    type="button"
+                    id="btnCancelarEdicion"
+                    class="btn-cancelar"
+                >
+                    Cancelar
+                </button>
+
+                <button
+                    type="submit"
+                    id="btnGuardarEdicion"
+                    class="btn-guardar-edicion"
+                >
+                    💾 Guardar cambios
+                </button>
+
+            </div>
+
+        </form>
+
+    </div>
+
+</div>
+</main>
+
+
+
+<!-- ==========================================
+     REPORTE DE ASISTENCIA
+=========================================== -->
+
+    <section
+        class="reporte"
+        id="seccionReporte"
+    >
+
+        <div class="reporte-contenedor">
+
+        <h2>
+            📊 Reporte de asistencia
+        </h2>
+
+
+        <p class="subtitulo-reporte">
+            Consulte las asistencias de cada miembro durante un mes.
+        </p>
+
+
+        <div class="reporte-config">
+
+            <div class="campo">
+
+                <label for="mesReporte">
+                    📅 Seleccionar mes
+                </label>
+
+                <input
+                    type="month"
+                    id="mesReporte"
+                >
+
+            </div>
+
+
+            <button
+                id="btnVerReporte"
+                class="btn-reporte"
+                type="button"
+            >
+                📊 Ver reporte
+            </button>
+
+        </div>
+
+
+        <!-- RESUMEN -->
+
+        <div
+            id="resumenReporte"
+            class="resumen-reporte"
+        >
+        </div>
+
+
+        <!-- RESULTADOS -->
+
+        <div
+            id="resultadoReporte"
+            class="resultado-reporte"
+        >
+
+            <p class="mensaje">
+                Seleccione un mes para ver el reporte.
+            </p>
+
+        </div>
+
+    </div>
+
+</section>
+
+
+
+<footer>
+
+    <p>
+        Sistema de control de miembros y asistencia
+    </p>
+
+</footer>
+
+
+
+<script src="app.js"></script>
+
+</body>
+</html>
