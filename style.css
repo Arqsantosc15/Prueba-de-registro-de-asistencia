@@ -1853,8 +1853,8 @@ main {
 .reporte,
 #seccionReporte {
     grid-column: 1 / -1 !important;
-    width: 1180px !important;
-    max-width: 1180px !important;
+    width: 690px !important;
+    max-width: 690px !important;
     min-width: 0 !important;
 
     margin-left: auto !important;
