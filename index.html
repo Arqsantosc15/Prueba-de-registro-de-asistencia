@@ -141,7 +141,7 @@
     <div class="paneles-superiores">
 
 <!-- NUEVO MIEMBRO -->
-        <section class="formulario">
+        <section class="formulario" id="seccionNuevoMiembro">
 
         <h2>Nuevo miembro</h2>
 
@@ -699,8 +699,6 @@
     </div>
 
 </div>
-</main>
-
 
 
 <!-- ==========================================
@@ -720,31 +718,38 @@
 
 
         <p class="subtitulo-reporte">
-            Consulte las asistencias de cada miembro durante un mes.
+            Consulte la asistencia por día, semana, mes o año según el alcance de su rol.
         </p>
 
-
-        <div class="reporte-config">
+        <div class="reporte-config reporte-config-multi">
 
             <div class="campo">
-
-                <label for="mesReporte">
-                    📅 Seleccionar mes
-                </label>
-
-                <input
-                    type="month"
-                    id="mesReporte"
-                >
-
+                <label for="tipoReporte">📊 Tipo de reporte</label>
+                <select id="tipoReporte">
+                    <option value="dia">Día</option>
+                    <option value="semana">Semana</option>
+                    <option value="mes" selected>Mes</option>
+                    <option value="anio">Año</option>
+                </select>
             </div>
 
+            <div class="campo" id="controlFechaReporte">
+                <label for="fechaReporte">📅 Fecha de referencia</label>
+                <input type="date" id="fechaReporte">
+                <small class="ayuda-reporte">Para semana, seleccione cualquier día de la semana deseada.</small>
+            </div>
 
-            <button
-                id="btnVerReporte"
-                class="btn-reporte"
-                type="button"
-            >
+            <div class="campo" id="controlMesReporte">
+                <label for="mesReporte">🗓️ Seleccionar mes</label>
+                <input type="month" id="mesReporte">
+            </div>
+
+            <div class="campo" id="controlAnioReporte">
+                <label for="anioReporte">📅 Seleccionar año</label>
+                <input type="number" id="anioReporte" min="2000" max="2100" step="1">
+            </div>
+
+            <button id="btnVerReporte" class="btn-reporte" type="button">
                 📊 Ver reporte
             </button>
 
@@ -768,7 +773,7 @@
         >
 
             <p class="mensaje">
-                Seleccione un mes para ver el reporte.
+                Seleccione el tipo y período del reporte para continuar.
             </p>
 
         </div>
@@ -777,6 +782,9 @@
 
 </section>
 
+
+
+</main>
 
 
 <footer>
