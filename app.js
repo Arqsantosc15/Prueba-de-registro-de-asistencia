@@ -21,7 +21,11 @@ const supabaseClient = window.supabase.createClient(
 
 let usuarioActual = null;
 let rolUsuarioActual = null;
+let ministerioUsuarioActual = null;
+let miembroIdUsuarioActual = null;
+let perfilUsuarioActual = null;
 let aplicacionIniciada = false;
+let miembrosPermitidosActuales = [];
 
 // Elementos de login
 let pantallaLogin;
@@ -42,10 +46,10 @@ let btnCerrarSesion;
 const SERVICIOS_POR_DIA = {
     0: [{ value: "Culto Dominical", label: "Culto Dominical" }],
     1: [],
-    2: [{ value: "Culto Marte Especial", label: "Culto Marte Especial" }],
+    2: [{ value: "Reunión", label: "Reunión" }],
     3: [{ value: "Oración de Jóvenes - Casa de Amigos", label: "Oración de Jóvenes - Casa de Amigos" }],
     4: [{ value: "Escuela Bíblica", label: "Escuela Bíblica" }],
-    5: [{ value: "Culto Viernes Especial", label: "Culto Viernes Especial" }],
+    5: [{ value: "Reunión", label: "Reunión" }],
     6: [{ value: "Culto de Adolescentes", label: "Culto de Adolescentes" }]
 };
 
@@ -81,7 +85,10 @@ let btnGuardarAsistencia;
 let listaAsistencia;
 
 // Reporte
+let tipoReporte;
+let fechaReporte;
 let mesReporte;
+let anioReporte;
 let btnVerReporte;
 let resultadoReporte;
 let resumenReporte;
@@ -134,6 +141,10 @@ async function inicializarAutenticacion() {
         if (evento === "SIGNED_OUT") {
             usuarioActual = null;
             rolUsuarioActual = null;
+            ministerioUsuarioActual = null;
+            miembroIdUsuarioActual = null;
+            perfilUsuarioActual = null;
+            miembrosPermitidosActuales = [];
             aplicacionIniciada = false;
             mostrarLogin();
             return;
@@ -202,7 +213,7 @@ async function cargarPerfilUsuario(usuario) {
     try {
         const resultado = await supabaseClient
             .from("perfiles")
-            .select("id, user_id, rol")
+            .select("id, user_id, rol, ministerio, miembro_id")
             .eq("user_id", usuario.id)
             .single();
 
@@ -222,6 +233,9 @@ async function cargarPerfilUsuario(usuario) {
             "admin",
             "administrador",
             "secretario",
+            "pastor",
+            "lider",
+            "líder",
             "miembro"
         ];
 
@@ -232,12 +246,39 @@ async function cargarPerfilUsuario(usuario) {
         rolUsuarioActual =
             rol === "admin" || rol === "administrador"
                 ? "administrador"
-                : rol;
+                : rol === "líder"
+                    ? "lider"
+                    : rol;
 
-        console.log("👤 Rol:", rolUsuarioActual);
+        ministerioUsuarioActual =
+            resultado.data.ministerio
+                ? String(resultado.data.ministerio).trim()
+                : null;
+
+        miembroIdUsuarioActual =
+            resultado.data.miembro_id !== null && resultado.data.miembro_id !== undefined
+                ? Number(resultado.data.miembro_id)
+                : null;
+
+        perfilUsuarioActual = resultado.data;
+
+        if (rolUsuarioActual === "lider" && !ministerioUsuarioActual) {
+            throw new Error("El perfil de Líder no tiene un ministerio asignado.");
+        }
+
+        if (rolUsuarioActual === "miembro" && !miembroIdUsuarioActual) {
+            console.warn("⚠️ El usuario Miembro todavía no tiene miembro_id asignado.");
+        }
+
+        console.log("👤 Perfil:", {
+            rol: rolUsuarioActual,
+            ministerio: ministerioUsuarioActual,
+            miembro_id: miembroIdUsuarioActual
+        });
 
         mostrarSistema();
         iniciarAplicacionUnaVez();
+        aplicarMinisterioSegunRol();
     } catch (error) {
         console.error("Error cargando perfil:", error);
 
@@ -245,9 +286,58 @@ async function cargarPerfilUsuario(usuario) {
 
         mostrarLogin();
         mostrarMensajeLogin(
-            "❌ Este usuario no tiene un rol configurado."
+            "❌ " + (error.message || "No se pudo cargar el perfil.")
         );
     }
+}
+
+function esRolAdministrativo() {
+    return ["administrador", "secretario"].includes(rolUsuarioActual);
+}
+
+function esRolConAccesoTotalLectura() {
+    return ["administrador", "secretario", "pastor"].includes(rolUsuarioActual);
+}
+
+function esRolLider() {
+    return rolUsuarioActual === "lider";
+}
+
+function esRolMiembro() {
+    return rolUsuarioActual === "miembro";
+}
+
+function aplicarMinisterioSegunRol() {
+    const ministerioElemento = document.getElementById("ministerio");
+    if (!ministerioElemento) return;
+
+    if (esRolLider()) {
+        ministerioElemento.value = ministerioUsuarioActual || "";
+        ministerioElemento.disabled = true;
+        ministerioElemento.title = "El ministerio está determinado por el perfil del Líder.";
+    } else {
+        ministerioElemento.disabled = false;
+        ministerioElemento.title = "";
+    }
+}
+
+function miembroPerteneceAlAlcance(miembro) {
+    if (!miembro || miembro.activo !== true) return false;
+
+    if (esRolMiembro()) {
+        return miembroIdUsuarioActual !== null && Number(miembro.id) === Number(miembroIdUsuarioActual);
+    }
+
+    if (esRolLider()) {
+        return String(miembro.ministerio || "").trim().toLocaleLowerCase() ===
+            String(ministerioUsuarioActual || "").trim().toLocaleLowerCase();
+    }
+
+    return true;
+}
+
+function filtrarMiembrosPorAlcance(miembros) {
+    return (miembros || []).filter(miembroPerteneceAlAlcance);
 }
 
 function mostrarLogin() {
@@ -284,67 +374,34 @@ function mostrarLogin() {
 }
 
 function mostrarSistema() {
-    if (pantallaLogin) {
-        pantallaLogin.style.display = "none";
-    }
-
-    if (usuarioConectado) {
-        usuarioConectado.style.display = "flex";
-    }
+    if (pantallaLogin) pantallaLogin.style.display = "none";
+    if (usuarioConectado) usuarioConectado.style.display = "flex";
 
     if (nombreUsuario) {
-        nombreUsuario.textContent =
-            usuarioActual ? (usuarioActual.email || "") : "";
+        nombreUsuario.textContent = usuarioActual ? (usuarioActual.email || "") : "";
     }
 
     if (rolUsuario) {
         const nombresRoles = {
             administrador: "Administrador",
             secretario: "Secretario",
+            pastor: "Pastor",
+            lider: ministerioUsuarioActual ? `Líder de ${ministerioUsuarioActual}` : "Líder",
             miembro: "Miembro"
         };
-
-        rolUsuario.textContent =
-            nombresRoles[rolUsuarioActual] || rolUsuarioActual;
+        rolUsuario.textContent = nombresRoles[rolUsuarioActual] || rolUsuarioActual;
     }
 
-    const seccionNuevoMiembro =
-        document.getElementById("seccionNuevoMiembro");
+    const seccionNuevoMiembro = document.getElementById("seccionNuevoMiembro");
+    const seccionMiembrosRegistrados = document.getElementById("seccionMiembrosRegistrados");
+    const seccionControlAsistencia = document.getElementById("seccionAsistencia");
+    const formularioMiembro = document.getElementById("memberForm");
+    const listaMiembrosElemento = document.getElementById("listaMiembros");
+    const botonCargarAsistencia = document.getElementById("btnCargarAsistencia");
+    const botonGuardarAsistencia = document.getElementById("btnGuardarAsistencia");
+    const listaAsistenciaElemento = document.getElementById("listaAsistencia");
+    const seccionReporte = document.getElementById("seccionReporte");
 
-    const seccionMiembrosRegistrados =
-        document.getElementById("seccionMiembrosRegistrados");
-
-    const seccionControlAsistencia =
-        document.getElementById("seccionControlAsistencia");
-
-    const formularioMiembro =
-        document.getElementById("memberForm");
-
-    const listaMiembrosElemento =
-        document.getElementById("listaMiembros");
-
-    const botonCargarAsistencia =
-        document.getElementById("btnCargarAsistencia");
-
-    const botonGuardarAsistencia =
-        document.getElementById("btnGuardarAsistencia");
-
-    const listaAsistenciaElemento =
-        document.getElementById("listaAsistencia");
-
-    const mesReporteElemento =
-        document.getElementById("mesReporte");
-
-    const botonReporte =
-        document.getElementById("btnVerReporte");
-
-    const resultadoReporteElemento =
-        document.getElementById("resultadoReporte");
-
-    const resumenReporteElemento =
-        document.getElementById("resumenReporte");
-
-    // Primero ocultar todo.
     [
         seccionNuevoMiembro,
         seccionMiembrosRegistrados,
@@ -354,101 +411,41 @@ function mostrarSistema() {
         botonCargarAsistencia,
         botonGuardarAsistencia,
         listaAsistenciaElemento,
-        mesReporteElemento,
-        botonReporte,
-        resultadoReporteElemento,
-        resumenReporteElemento
+        seccionReporte
     ].forEach(elemento => {
-        if (elemento) {
-            elemento.style.display = "none";
-        }
+        if (elemento) elemento.style.display = "none";
     });
 
-    if (rolUsuarioActual === "administrador") {
-        [
-            seccionNuevoMiembro,
-            seccionMiembrosRegistrados,
-            seccionControlAsistencia,
-            formularioMiembro,
-            listaMiembrosElemento,
-            botonCargarAsistencia,
-            botonGuardarAsistencia,
-            listaAsistenciaElemento,
-            mesReporteElemento,
-            botonReporte,
-            resultadoReporteElemento,
-            resumenReporteElemento
-        ].forEach(elemento => {
-            if (elemento) elemento.style.display = "";
-        });
-
-        console.log("👑 Permisos: ADMINISTRADOR");
+    if (rolUsuarioActual === "administrador" || rolUsuarioActual === "secretario") {
+        [seccionNuevoMiembro, seccionMiembrosRegistrados, seccionControlAsistencia, seccionReporte]
+            .forEach(e => { if (e) e.style.display = ""; });
+        [formularioMiembro, listaMiembrosElemento, botonCargarAsistencia, botonGuardarAsistencia, listaAsistenciaElemento]
+            .forEach(e => { if (e) e.style.display = ""; });
         return;
     }
 
-    if (rolUsuarioActual === "secretario") {
-        [
-            seccionNuevoMiembro,
-            seccionMiembrosRegistrados,
-            seccionControlAsistencia,
-            formularioMiembro,
-            listaMiembrosElemento,
-            botonCargarAsistencia,
-            botonGuardarAsistencia,
-            listaAsistenciaElemento,
-            mesReporteElemento,
-            botonReporte,
-            resultadoReporteElemento,
-            resumenReporteElemento
-        ].forEach(elemento => {
-            if (elemento) elemento.style.display = "";
-        });
-
-        console.log("📝 Permisos: SECRETARIO");
+    if (rolUsuarioActual === "pastor") {
+        [seccionMiembrosRegistrados, seccionReporte]
+            .forEach(e => { if (e) e.style.display = ""; });
+        [listaMiembrosElemento]
+            .forEach(e => { if (e) e.style.display = ""; });
         return;
     }
 
-if (rolUsuarioActual === "miembro") {
+    if (rolUsuarioActual === "lider") {
+        [seccionNuevoMiembro, seccionMiembrosRegistrados, seccionControlAsistencia, seccionReporte]
+            .forEach(e => { if (e) e.style.display = ""; });
+        [formularioMiembro, listaMiembrosElemento, botonCargarAsistencia, botonGuardarAsistencia, listaAsistenciaElemento]
+            .forEach(e => { if (e) e.style.display = ""; });
+        return;
+    }
 
-    // MIEMBRO: solamente consulta
-    [
-        seccionNuevoMiembro,
-        seccionControlAsistencia,
-        formularioMiembro,
-        botonCargarAsistencia,
-        botonGuardarAsistencia,
-        listaAsistenciaElemento
-    ].forEach(elemento => {
-        if (elemento) {
-            elemento.style.setProperty("display", "none", "important");
-        }
-    });
-
-    // Mostrar solamente miembros registrados
-    [
-        seccionMiembrosRegistrados,
-        listaMiembrosElemento
-    ].forEach(elemento => {
-        if (elemento) {
-            elemento.style.setProperty("display", "", "important");
-        }
-    });
-
-    // Mostrar solamente reporte
-    [
-        mesReporteElemento,
-        botonReporte,
-        resultadoReporteElemento,
-        resumenReporteElemento
-    ].forEach(elemento => {
-        if (elemento) {
-            elemento.style.setProperty("display", "", "important");
-        }
-    });
-
-    console.log("👤 Permisos: MIEMBRO - SOLO CONSULTA");
-    return;
-}
+    if (rolUsuarioActual === "miembro") {
+        [seccionMiembrosRegistrados, seccionReporte]
+            .forEach(e => { if (e) e.style.display = ""; });
+        if (listaMiembrosElemento) listaMiembrosElemento.style.display = "";
+        return;
+    }
 
     console.warn("⚠️ Rol desconocido:", rolUsuarioActual);
 }
@@ -473,6 +470,10 @@ async function cerrarSesion() {
 
         usuarioActual = null;
         rolUsuarioActual = null;
+        ministerioUsuarioActual = null;
+        miembroIdUsuarioActual = null;
+        perfilUsuarioActual = null;
+        miembrosPermitidosActuales = [];
         aplicacionIniciada = false;
 
         if (formLogin) {
@@ -647,9 +648,9 @@ async function guardarMiembro(event) {
             ? telefonoElemento.value.trim()
             : "";
 
-        const ministerio = ministerioElemento
-            ? ministerioElemento.value
-            : "";
+        const ministerio = esRolLider()
+            ? (ministerioUsuarioActual || "")
+            : (ministerioElemento ? ministerioElemento.value : "");
 
         const foto =
             fotoInput && fotoInput.files
@@ -774,12 +775,9 @@ async function subirFotoMiembro(archivo, prefijo) {
 }
 
 async function cargarMiembros() {
-    if (!listaMiembros) {
-        return;
-    }
+    if (!listaMiembros) return;
 
-    listaMiembros.innerHTML =
-        '<p class="mensaje">⏳ Cargando miembros...</p>';
+    listaMiembros.innerHTML = '<p class="mensaje">⏳ Cargando miembros...</p>';
 
     try {
         const resultado = await supabaseClient
@@ -788,21 +786,17 @@ async function cargarMiembros() {
             .eq("activo", true)
             .order("nombre", { ascending: true });
 
-        if (resultado.error) {
-            throw resultado.error;
-        }
+        if (resultado.error) throw resultado.error;
 
-        mostrarMiembros(resultado.data || []);
+        miembrosPermitidosActuales = filtrarMiembrosPorAlcance(resultado.data || []);
+        mostrarMiembros(miembrosPermitidosActuales);
     } catch (error) {
         console.error("Error cargando miembros:", error);
-
         listaMiembros.innerHTML = `
             <p class="mensaje">
-                ❌ No se pudieron cargar los miembros.
-                <br><br>
-                ${escaparHTML(error.message)}
-            </p>
-        `;
+                ❌ No se pudieron cargar los miembros.<br><br>
+                ${escaparHTML(error.message || error)}
+            </p>`;
     }
 }
 
@@ -985,9 +979,7 @@ function obtenerDias(miembro) {
 }
 
 async function buscarMiembros() {
-    if (!buscar) {
-        return;
-    }
+    if (!buscar) return;
 
     const texto = buscar.value.trim();
 
@@ -1004,11 +996,11 @@ async function buscarMiembros() {
             .ilike("nombre", `%${texto}%`)
             .order("nombre", { ascending: true });
 
-        if (resultado.error) {
-            throw resultado.error;
-        }
+        if (resultado.error) throw resultado.error;
 
-        mostrarMiembros(resultado.data || []);
+        const filtrados = filtrarMiembrosPorAlcance(resultado.data || []);
+        miembrosPermitidosActuales = filtrados;
+        mostrarMiembros(filtrados);
     } catch (error) {
         console.error("Error buscando miembros:", error);
     }
@@ -1061,10 +1053,7 @@ function inicializarModalEditar() {
 
 async function abrirModalEditar(id) {
 
-    if (
-        rolUsuarioActual !== "administrador" &&
-        rolUsuarioActual !== "secretario"
-    ) {
+    if (!esRolAdministrativo()) {
         alert("❌ No tiene permisos para editar miembros.");
         return;
     }
@@ -1273,7 +1262,7 @@ async function guardarCambiosMiembro(event) {
             await cargarListaAsistencia();
         }
 
-        if (mesReporte && mesReporte.value) {
+        if (btnVerReporte) {
             await cargarReporte();
         }
     } catch (error) {
@@ -1459,7 +1448,7 @@ async function cargarListaAsistencia() {
         // MIEMBROS
         // --------------------------------------
 
-        const {
+        let {
             data: miembros,
             error: errorMiembros
         } = await supabaseClient
@@ -1472,11 +1461,16 @@ async function cargarListaAsistencia() {
             throw errorMiembros;
         }
 
-        if (!miembros || miembros.length === 0) {
+        const miembrosFiltrados = filtrarMiembrosPorAlcance(miembros || []);
+        miembrosPermitidosActuales = miembrosFiltrados;
+
+        if (miembrosFiltrados.length === 0) {
             listaAsistencia.innerHTML =
-                '<p class="sin-miembros">No hay miembros registrados.</p>';
+                '<p class="sin-miembros">No hay miembros disponibles para su rol.</p>';
             return;
         }
+
+        miembros = miembrosFiltrados;
 
         // --------------------------------------
         // ASISTENCIAS EXISTENTES
@@ -1696,6 +1690,10 @@ async function guardarAsistencia() {
     const checkboxes =
         document.querySelectorAll(".check-asistencia");
 
+    const idsPermitidos = new Set(
+        (miembrosPermitidosActuales || []).map(m => Number(m.id))
+    );
+
     if (checkboxes.length === 0) {
         alert("Primero debe cargar los miembros.");
         return;
@@ -1730,10 +1728,11 @@ async function guardarAsistencia() {
 
         checkboxes.forEach(function (checkbox) {
             if (checkbox.checked) {
+                const miembroId = Number(checkbox.dataset.miembroId);
+                if (!idsPermitidos.has(miembroId)) return;
+
                 registros.push({
-                    miembro_id: Number(
-                        checkbox.dataset.miembroId
-                    ),
+                    miembro_id: miembroId,
                     fecha: fecha,
                     servicio: servicio,
                     asistio: true
@@ -1823,151 +1822,164 @@ function obtenerDiaDeFecha(fecha) {
 // ==========================================================
 
 function inicializarReporte() {
+    tipoReporte = document.getElementById("tipoReporte");
+    fechaReporte = document.getElementById("fechaReporte");
     mesReporte = document.getElementById("mesReporte");
+    anioReporte = document.getElementById("anioReporte");
     btnVerReporte = document.getElementById("btnVerReporte");
-    resultadoReporte =
-        document.getElementById("resultadoReporte");
-    resumenReporte =
-        document.getElementById("resumenReporte");
+    resultadoReporte = document.getElementById("resultadoReporte");
+    resumenReporte = document.getElementById("resumenReporte");
 
-    if (mesReporte && !mesReporte.value) {
-        mesReporte.value = mesActual();
+    if (fechaReporte && !fechaReporte.value) fechaReporte.value = fechaHoy();
+    if (mesReporte && !mesReporte.value) mesReporte.value = mesActual();
+    if (anioReporte && !anioReporte.value) anioReporte.value = String(new Date().getFullYear());
+
+    if (tipoReporte) {
+        tipoReporte.addEventListener("change", actualizarControlesReporte);
     }
 
     if (btnVerReporte) {
-        btnVerReporte.addEventListener(
-            "click",
-            cargarReporte
-        );
+        btnVerReporte.addEventListener("click", cargarReporte);
     }
+
+    actualizarControlesReporte();
+}
+
+function actualizarControlesReporte() {
+    const tipo = tipoReporte ? tipoReporte.value : "mes";
+    const grupos = {
+        fecha: document.getElementById("controlFechaReporte"),
+        mes: document.getElementById("controlMesReporte"),
+        anio: document.getElementById("controlAnioReporte")
+    };
+
+    Object.values(grupos).forEach(el => {
+        if (el) el.style.display = "none";
+    });
+
+    if (tipo === "dia" && grupos.fecha) grupos.fecha.style.display = "";
+    if (tipo === "semana" && grupos.fecha) grupos.fecha.style.display = "";
+    if (tipo === "mes" && grupos.mes) grupos.mes.style.display = "";
+    if (tipo === "anio" && grupos.anio) grupos.anio.style.display = "";
 }
 
 function mesActual() {
     const ahora = new Date();
+    return `${ahora.getFullYear()}-${String(ahora.getMonth() + 1).padStart(2, "0")}`;
+}
 
-    const año = ahora.getFullYear();
+function obtenerRangoReporte() {
+    const tipo = tipoReporte ? tipoReporte.value : "mes";
 
-    const mes = String(
-        ahora.getMonth() + 1
-    ).padStart(2, "0");
+    if (tipo === "dia") {
+        const fecha = fechaReporte ? fechaReporte.value : "";
+        if (!fecha) throw new Error("Seleccione el día del reporte.");
+        return { tipo, inicio: fecha, fin: fecha, etiqueta: `Día ${fecha}` };
+    }
 
-    return `${año}-${mes}`;
+    if (tipo === "semana") {
+        const fecha = fechaReporte ? fechaReporte.value : "";
+        if (!fecha) throw new Error("Seleccione una fecha para calcular la semana.");
+
+        const d = new Date(`${fecha}T12:00:00`);
+        const dia = d.getDay();
+        const diferenciaLunes = dia === 0 ? -6 : 1 - dia;
+        const inicio = new Date(d);
+        inicio.setDate(d.getDate() + diferenciaLunes);
+        const fin = new Date(inicio);
+        fin.setDate(inicio.getDate() + 6);
+
+        const aFecha = fecha => {
+            const y = fecha.getFullYear();
+            const m = String(fecha.getMonth() + 1).padStart(2, "0");
+            const day = String(fecha.getDate()).padStart(2, "0");
+            return `${y}-${m}-${day}`;
+        };
+
+        return {
+            tipo,
+            inicio: aFecha(inicio),
+            fin: aFecha(fin),
+            etiqueta: `Semana del ${aFecha(inicio)} al ${aFecha(fin)}`
+        };
+    }
+
+    if (tipo === "anio") {
+        const anio = Number(anioReporte ? anioReporte.value : "");
+        if (!Number.isInteger(anio) || anio < 2000 || anio > 2100) {
+            throw new Error("Seleccione un año válido.");
+        }
+        return { tipo, inicio: `${anio}-01-01`, fin: `${anio}-12-31`, etiqueta: `Año ${anio}` };
+    }
+
+    const mes = mesReporte ? mesReporte.value : "";
+    if (!/^\d{4}-\d{2}$/.test(mes)) throw new Error("Seleccione un mes válido.");
+    const [anio, numeroMes] = mes.split("-").map(Number);
+    const ultimoDia = new Date(anio, numeroMes, 0).getDate();
+    return {
+        tipo: "mes",
+        inicio: `${mes}-01`,
+        fin: `${mes}-${String(ultimoDia).padStart(2, "0")}`,
+        etiqueta: `Mes ${mes}`
+    };
 }
 
 async function cargarReporte() {
-    if (
-        !mesReporte ||
-        !btnVerReporte ||
-        !resultadoReporte ||
-        !resumenReporte
-    ) {
-        return;
-    }
-
-    const mes = mesReporte.value;
-
-    if (!mes) {
-        alert("Seleccione un mes.");
-        return;
-    }
+    if (!btnVerReporte || !resultadoReporte || !resumenReporte) return;
 
     btnVerReporte.disabled = true;
     btnVerReporte.textContent = "⏳ Cargando...";
-
-    resultadoReporte.innerHTML = `
-        <p class="mensaje">
-            ⏳ Generando reporte...
-        </p>
-    `;
-
+    resultadoReporte.innerHTML = '<p class="mensaje">⏳ Generando reporte...</p>';
     resumenReporte.innerHTML = "";
 
     try {
-        const partesMes = mes.split("-");
+        const rango = obtenerRangoReporte();
 
-        const año = Number(partesMes[0]);
-        const numeroMes = Number(partesMes[1]);
-
-        if (
-            !Number.isInteger(año) ||
-            !Number.isInteger(numeroMes) ||
-            numeroMes < 1 ||
-            numeroMes > 12
-        ) {
-            throw new Error("El mes seleccionado no es válido.");
-        }
-
-        const inicioMes = `${mes}-01`;
-
-        const ultimoDia =
-            new Date(año, numeroMes, 0).getDate();
-
-        const finMes =
-            `${mes}-${String(ultimoDia).padStart(2, "0")}`;
-
-        const resultadoMiembros = await supabaseClient
+        let consultaMiembros = supabaseClient
             .from("miembros")
             .select("*")
             .eq("activo", true)
             .order("nombre", { ascending: true });
 
-        if (resultadoMiembros.error) {
-            throw resultadoMiembros.error;
+        if (esRolMiembro()) {
+            if (!miembroIdUsuarioActual) throw new Error("Este usuario Miembro todavía no tiene miembro_id asignado.");
+            consultaMiembros = consultaMiembros.eq("id", miembroIdUsuarioActual);
+        } else if (esRolLider()) {
+            consultaMiembros = consultaMiembros.eq("ministerio", ministerioUsuarioActual);
         }
+
+        const resultadoMiembros = await consultaMiembros;
+        if (resultadoMiembros.error) throw resultadoMiembros.error;
 
         const miembros = resultadoMiembros.data || [];
 
         const resultadoAsistencias = await supabaseClient
             .from("asistencias")
-            .select(
-                "miembro_id, fecha, servicio, asistio"
-            )
-            .gte("fecha", inicioMes)
-            .lte("fecha", finMes)
+            .select("miembro_id, fecha, servicio, asistio")
+            .gte("fecha", rango.inicio)
+            .lte("fecha", rango.fin)
             .order("fecha", { ascending: true });
 
-        if (resultadoAsistencias.error) {
-            throw resultadoAsistencias.error;
-        }
+        if (resultadoAsistencias.error) throw resultadoAsistencias.error;
 
-        const asistencias =
-            resultadoAsistencias.data || [];
+        const miembrosIds = new Set(miembros.map(m => Number(m.id)));
+        const asistencias = (resultadoAsistencias.data || []).filter(a => miembrosIds.has(Number(a.miembro_id)));
 
-        // Cada combinación fecha + servicio es una reunión.
         const reunionesMap = new Map();
-
         asistencias.forEach(registro => {
-            if (!registro.fecha || !registro.servicio) {
-                return;
-            }
-
-            const clave =
-                `${registro.fecha}|${registro.servicio}`;
-
+            if (!registro.fecha || !registro.servicio) return;
+            const clave = `${registro.fecha}|${registro.servicio}`;
             if (!reunionesMap.has(clave)) {
-                reunionesMap.set(clave, {
-                    fecha: registro.fecha,
-                    servicio: registro.servicio
-                });
+                reunionesMap.set(clave, { fecha: registro.fecha, servicio: registro.servicio });
             }
         });
 
-        const reuniones =
-            Array.from(reunionesMap.values());
-
+        const reuniones = Array.from(reunionesMap.values());
         const asistenciasReales = new Set();
 
         asistencias.forEach(registro => {
-            if (registro.asistio !== true) {
-                return;
-            }
-
-            const clave =
-                `${Number(registro.miembro_id)}|` +
-                `${registro.fecha}|` +
-                `${registro.servicio}`;
-
-            asistenciasReales.add(clave);
+            if (registro.asistio !== true) return;
+            asistenciasReales.add(`${Number(registro.miembro_id)}|${registro.fecha}|${registro.servicio}`);
         });
 
         const resultados = miembros.map(miembro => {
@@ -1976,103 +1988,36 @@ async function cargarReporte() {
             let reunionesAusentes = 0;
 
             reuniones.forEach(reunion => {
-                const dia =
-                    obtenerDiaDeFecha(reunion.fecha);
-
-                const esperaba =
-                    miembro[dia] === true;
-
-                if (!esperaba) {
-                    return;
-                }
+                const dia = obtenerDiaDeFecha(reunion.fecha);
+                if (miembro[dia] !== true) return;
 
                 reunionesEsperadas++;
-
-                const clave =
-                    `${Number(miembro.id)}|` +
-                    `${reunion.fecha}|` +
-                    `${reunion.servicio}`;
-
-                if (asistenciasReales.has(clave)) {
-                    reunionesAsistidas++;
-                } else {
-                    reunionesAusentes++;
-                }
+                const clave = `${Number(miembro.id)}|${reunion.fecha}|${reunion.servicio}`;
+                if (asistenciasReales.has(clave)) reunionesAsistidas++;
+                else reunionesAusentes++;
             });
 
-            const porcentaje =
-                reunionesEsperadas > 0
-                    ? Math.min(
-                        100,
-                        Math.round(
-                            (
-                                reunionesAsistidas /
-                                reunionesEsperadas
-                            ) * 100
-                        )
-                    )
-                    : 0;
+            const porcentaje = reunionesEsperadas > 0
+                ? Math.min(100, Math.round((reunionesAsistidas / reunionesEsperadas) * 100))
+                : 0;
 
-            return {
-                miembro,
-                esperadas: reunionesEsperadas,
-                asistencias: reunionesAsistidas,
-                ausencias: reunionesAusentes,
-                porcentaje
-            };
+            return { miembro, esperadas: reunionesEsperadas, asistencias: reunionesAsistidas, ausencias: reunionesAusentes, porcentaje };
         });
 
         const totalMiembros = miembros.length;
-
-        const sumaPorcentajes =
-            resultados.reduce(
-                (total, resultado) =>
-                    total + resultado.porcentaje,
-                0
-            );
-
-        const promedio =
-            totalMiembros > 0
-                ? Math.round(
-                    sumaPorcentajes / totalMiembros
-                )
-                : 0;
+        const promedio = totalMiembros > 0
+            ? Math.round(resultados.reduce((sum, r) => sum + r.porcentaje, 0) / totalMiembros)
+            : 0;
 
         resumenReporte.innerHTML = `
-            <div class="resumen-card">
-                <span class="numero">
-                    ${totalMiembros}
-                </span>
-                <span class="texto">
-                    Miembros activos
-                </span>
-            </div>
-
-            <div class="resumen-card">
-                <span class="numero">
-                    ${reuniones.length}
-                </span>
-                <span class="texto">
-                    Reuniones registradas
-                </span>
-            </div>
-
-            <div class="resumen-card">
-                <span class="numero">
-                    ${promedio}%
-                </span>
-                <span class="texto">
-                    Promedio de asistencia
-                </span>
-            </div>
+            <div class="resumen-card"><span class="numero">${totalMiembros}</span><span class="texto">Miembros en el reporte</span></div>
+            <div class="resumen-card"><span class="numero">${reuniones.length}</span><span class="texto">Reuniones registradas</span></div>
+            <div class="resumen-card"><span class="numero">${promedio}%</span><span class="texto">Promedio de asistencia</span></div>
+            <div class="resumen-card resumen-periodo"><span class="numero">${escaparHTML(rango.etiqueta)}</span><span class="texto">Período</span></div>
         `;
 
         if (resultados.length === 0) {
-            resultadoReporte.innerHTML = `
-                <p class="mensaje">
-                    No hay miembros registrados.
-                </p>
-            `;
+            resultadoReporte.innerHTML = '<p class="mensaje">No hay miembros dentro del alcance de este usuario.</p>';
             return;
         }
 
@@ -2081,14 +2026,12 @@ async function cargarReporte() {
         resultados.forEach(resultado => {
             const miembro = resultado.miembro;
             const porcentaje = resultado.porcentaje;
-
             let clasePorcentaje = "porcentaje-sin-datos";
             let claseEstado = "estado-sin-datos";
             let textoEstado = "Sin datos";
 
-            if (resultado.esperadas === 0) {
-                textoEstado = "Sin reuniones esperadas";
-            } else if (porcentaje >= 80) {
+            if (resultado.esperadas === 0) textoEstado = "Sin reuniones esperadas";
+            else if (porcentaje >= 80) {
                 clasePorcentaje = "porcentaje-alto";
                 claseEstado = "estado-alto";
                 textoEstado = "Buena asistencia";
@@ -2102,108 +2045,36 @@ async function cargarReporte() {
                 textoEstado = "Baja asistencia";
             }
 
-            const tarjeta =
-                document.createElement("div");
-
+            const tarjeta = document.createElement("div");
             tarjeta.className = "reporte-miembro";
 
             const fotoHTML = miembro.foto_url
-                ? `
-                    <img
-                        src="${escaparHTML(miembro.foto_url)}"
-                        alt="Foto de ${escaparHTML(miembro.nombre)}"
-                        class="reporte-foto"
-                    >
-                `
-                : `
-                    <div
-                        class="reporte-foto"
-                        style="
-                            display:flex;
-                            align-items:center;
-                            justify-content:center;
-                            background:#e9eef3;
-                            font-size:25px;
-                        "
-                    >
-                        👤
-                    </div>
-                `;
+                ? `<img src="${escaparHTML(miembro.foto_url)}" alt="Foto de ${escaparHTML(miembro.nombre)}" class="reporte-foto">`
+                : `<div class="reporte-foto" style="display:flex;align-items:center;justify-content:center;background:#e9eef3;font-size:25px;">👤</div>`;
 
             tarjeta.innerHTML = `
                 ${fotoHTML}
-
                 <div class="reporte-info">
-                    <h3>
-                        ${escaparHTML(miembro.nombre)}
-                    </h3>
-
-                    <p>
-                        ⛪
-                        ${escaparHTML(
-                            miembro.ministerio ||
-                            "Sin ministerio"
-                        )}
-                    </p>
-
-                    <p>
-                        📅
-                        ${escaparHTML(
-                            obtenerDias(miembro) ||
-                            "Sin días registrados"
-                        )}
-                    </p>
+                    <h3>${escaparHTML(miembro.nombre || "")}</h3>
+                    <p>📞 ${escaparHTML(miembro.telefono || "Sin teléfono")}</p>
+                    <p>⛪ ${escaparHTML(miembro.ministerio || "Sin ministerio")}</p>
+                    <p>📅 ${escaparHTML(obtenerDias(miembro) || "Sin días registrados")}</p>
                 </div>
-
                 <div class="reporte-estadistica">
-                    <div
-                        class="reporte-porcentaje ${clasePorcentaje}"
-                    >
-                        ${porcentaje}%
-                    </div>
-
-                    <div class="reporte-detalle">
-                        ${resultado.asistencias}
-                        de
-                        ${resultado.esperadas}
-                        reuniones esperadas
-                    </div>
-
-                    <div class="reporte-detalle">
-                        ${resultado.ausencias}
-                        ausencia${
-                            resultado.ausencias === 1
-                                ? ""
-                                : "s"
-                        }
-                    </div>
-
-                    <span
-                        class="estado-asistencia ${claseEstado}"
-                    >
-                        ${textoEstado}
-                    </span>
+                    <div class="reporte-porcentaje ${clasePorcentaje}">${porcentaje}%</div>
+                    <div class="reporte-detalle">${resultado.asistencias} de ${resultado.esperadas} reuniones esperadas</div>
+                    <div class="reporte-detalle">${resultado.ausencias} ausencia${resultado.ausencias === 1 ? "" : "s"}</div>
+                    <span class="estado-asistencia ${claseEstado}">${textoEstado}</span>
                 </div>
             `;
 
             resultadoReporte.appendChild(tarjeta);
         });
 
-        console.log("📊 Reporte generado:", {
-            miembros: totalMiembros,
-            reuniones: reuniones.length,
-            promedio
-        });
+        console.log("📊 Reporte generado:", { tipo: rango.tipo, inicio: rango.inicio, fin: rango.fin, miembros: totalMiembros, reuniones: reuniones.length, promedio });
     } catch (error) {
         console.error("Error generando reporte:", error);
-
-        resultadoReporte.innerHTML = `
-            <p class="mensaje">
-                ❌ No se pudo generar el reporte.
-                <br><br>
-                ${escaparHTML(error.message)}
-            </p>
-        `;
+        resultadoReporte.innerHTML = `<p class="mensaje">❌ No se pudo generar el reporte.<br><br>${escaparHTML(error.message || error)}</p>`;
     } finally {
         btnVerReporte.disabled = false;
         btnVerReporte.textContent = "📊 Ver reporte";
