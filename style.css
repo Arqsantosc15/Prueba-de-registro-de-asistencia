@@ -2830,3 +2830,83 @@ main > #seccionReporte,
         max-width: none !important;
     }
 }
+
+
+/* ==========================================================
+   CORRECCIÓN 2026-09-20: HORIZONTAL + CAMPO VISITA
+   No modifica la estructura ni el ancho del Reporte de asistencia.
+   ========================================================== */
+
+/* El campo de iglesia solo existe visualmente para Visita. */
+.campo-visita {
+    display: none;
+}
+
+/* Teléfono/tablet en horizontal: aprovechar el ancho disponible. */
+@media (max-width: 900px) and (orientation: landscape) {
+    main {
+        width: calc(100% - 24px) !important;
+        max-width: 1100px !important;
+        margin-left: auto !important;
+        margin-right: auto !important;
+    }
+
+    .paneles-superiores {
+        width: 100% !important;
+        grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) !important;
+        gap: 14px !important;
+    }
+
+    .paneles-superiores > .formulario,
+    .paneles-superiores > #seccionNuevoMiembro,
+    .paneles-superiores > .miembros,
+    .paneles-superiores > #seccionMiembrosRegistrados {
+        width: 100% !important;
+        min-width: 0 !important;
+        height: auto !important;
+        min-height: 420px !important;
+        max-height: 520px !important;
+    }
+
+    #seccionAsistencia,
+    #seccionControlAsistencia,
+    .asistencia,
+    .seccion-asistencia {
+        width: 100% !important;
+        max-width: none !important;
+        min-width: 0 !important;
+    }
+
+    #listaAsistencia,
+    .lista-asistencia {
+        width: 100% !important;
+        min-width: 0 !important;
+        grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+        gap: 10px !important;
+    }
+
+    #listaAsistencia .asistencia-miembro,
+    .lista-asistencia .asistencia-miembro {
+        min-width: 0 !important;
+        grid-template-columns: 20px 52px minmax(0, 1fr) !important;
+    }
+}
+
+/* Tablet vertical: mantener una sola columna arriba para no comprimir. */
+@media (min-width: 681px) and (max-width: 900px) and (orientation: portrait) {
+    main {
+        width: calc(100% - 24px) !important;
+        max-width: 760px !important;
+    }
+
+    .paneles-superiores {
+        grid-template-columns: 1fr !important;
+    }
+
+    #seccionAsistencia,
+    #seccionControlAsistencia,
+    .asistencia,
+    .seccion-asistencia {
+        width: 100% !important;
+    }
+}
