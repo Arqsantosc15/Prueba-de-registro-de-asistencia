@@ -326,6 +326,40 @@ function aplicarMinisterioSegunRol() {
     }
 }
 
+function actualizarCampoIglesiaVisita(selectId, campoId, inputId) {
+    const select = document.getElementById(selectId);
+    const campo = document.getElementById(campoId);
+    const input = document.getElementById(inputId);
+    if (!select || !campo || !input) return;
+
+    const esVisita = String(select.value || "").trim().toLocaleLowerCase() === "visita";
+    campo.style.display = esVisita ? "block" : "none";
+    input.required = esVisita;
+
+    if (!esVisita) {
+        input.value = "";
+    }
+}
+
+function configurarCamposVisita() {
+    const ministerio = document.getElementById("ministerio");
+    const editarMinisterio = document.getElementById("editarMinisterio");
+
+    if (ministerio) {
+        ministerio.addEventListener("change", () => {
+            actualizarCampoIglesiaVisita("ministerio", "campoIglesiaVisita", "iglesiaVisita");
+        });
+        actualizarCampoIglesiaVisita("ministerio", "campoIglesiaVisita", "iglesiaVisita");
+    }
+
+    if (editarMinisterio) {
+        editarMinisterio.addEventListener("change", () => {
+            actualizarCampoIglesiaVisita("editarMinisterio", "campoEditarIglesiaVisita", "editarIglesiaVisita");
+        });
+        actualizarCampoIglesiaVisita("editarMinisterio", "campoEditarIglesiaVisita", "editarIglesiaVisita");
+    }
+}
+
 function miembroPerteneceAlAlcance(miembro) {
     if (!miembro || miembro.activo !== true) return false;
 
@@ -590,6 +624,7 @@ function iniciarAplicacionUnaVez() {
     agregarEstilosAsistenciaPorMinisterio();
     inicializarReporte();
     inicializarModalEditar();
+    configurarCamposVisita();
 }
 
 // ==========================================================
@@ -667,6 +702,11 @@ async function guardarMiembro(event) {
             ? (ministerioUsuarioActual || "")
             : (ministerioElemento ? ministerioElemento.value : "");
 
+        const iglesiaVisitaElemento = document.getElementById("iglesiaVisita");
+        const iglesia_origen = ministerio === "Visita"
+            ? (iglesiaVisitaElemento ? iglesiaVisitaElemento.value.trim() : "")
+            : null;
+
         const foto =
             fotoInput && fotoInput.files
                 ? fotoInput.files[0]
@@ -695,6 +735,11 @@ async function guardarMiembro(event) {
             return;
         }
 
+        if (ministerio === "Visita" && !iglesia_origen) {
+            alert("Por favor, escriba la iglesia de donde viene la visita.");
+            return;
+        }
+
         let fotoUrl = null;
 
         if (foto) {
@@ -705,6 +750,7 @@ async function guardarMiembro(event) {
             nombre,
             telefono,
             ministerio,
+            iglesia_origen,
             foto_url: fotoUrl,
             lunes: diasSeleccionados.includes("lunes"),
             martes: diasSeleccionados.includes("martes"),
@@ -1112,6 +1158,12 @@ async function abrirModalEditar(id) {
                 miembro.ministerio || "";
         }
 
+        const editarIglesiaVisita = document.getElementById("editarIglesiaVisita");
+        if (editarIglesiaVisita) {
+            editarIglesiaVisita.value = miembro.iglesia_origen || "";
+        }
+        actualizarCampoIglesiaVisita("editarMinisterio", "campoEditarIglesiaVisita", "editarIglesiaVisita");
+
         document
             .querySelectorAll('input[name="editarDias"]')
             .forEach(checkbox => {
@@ -1201,6 +1253,10 @@ async function guardarCambiosMiembro(event) {
     const ministerio = editarMinisterio
         ? editarMinisterio.value
         : "";
+    const editarIglesiaVisita = document.getElementById("editarIglesiaVisita");
+    const iglesia_origen = ministerio === "Visita"
+        ? (editarIglesiaVisita ? editarIglesiaVisita.value.trim() : "")
+        : null;
 
     const foto =
         editarFoto && editarFoto.files
@@ -1235,6 +1291,11 @@ async function guardarCambiosMiembro(event) {
         return;
     }
 
+    if (ministerio === "Visita" && !iglesia_origen) {
+        alert("Por favor, escriba la iglesia de donde viene la visita.");
+        return;
+    }
+
     if (btnGuardarEdicion) {
         btnGuardarEdicion.disabled = true;
         btnGuardarEdicion.textContent = "⏳ Guardando...";
@@ -1245,6 +1306,7 @@ async function guardarCambiosMiembro(event) {
             nombre,
             telefono,
             ministerio,
+            iglesia_origen,
             lunes: diasSeleccionados.includes("lunes"),
             martes: diasSeleccionados.includes("martes"),
             miercoles: diasSeleccionados.includes("miercoles"),
