@@ -2661,3 +2661,172 @@ main > #seccionReporte,
         width: 100% !important;
     }
 }
+
+/* ==========================================================
+   RESPONSIVE DE SECCIONES (SIN MODIFICAR LA CONFIGURACION
+   VISUAL DEL REPORTE DE ASISTENCIA)
+   ========================================================== */
+
+/* TABLET Y TELEFONO EN HORIZONTAL/ANCHO INTERMEDIO:
+   ampliar el area de trabajo de las secciones operativas.
+   El reporte conserva su ancho visual actual. */
+@media (min-width: 681px) and (max-width: 900px) {
+    main {
+        width: calc(100% - 24px) !important;
+        max-width: 1100px !important;
+        margin-left: auto !important;
+        margin-right: auto !important;
+    }
+
+    .paneles-superiores {
+        width: 100% !important;
+        grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) !important;
+        gap: 16px !important;
+    }
+
+    .paneles-superiores > .formulario,
+    .paneles-superiores > #seccionNuevoMiembro,
+    .paneles-superiores > .miembros,
+    .paneles-superiores > #seccionMiembrosRegistrados {
+        height: 560px !important;
+        min-height: 560px !important;
+        max-height: 560px !important;
+    }
+
+    #seccionAsistencia,
+    #seccionControlAsistencia,
+    .asistencia,
+    .seccion-asistencia {
+        width: 100% !important;
+        max-width: none !important;
+    }
+
+    #listaAsistencia,
+    .lista-asistencia {
+        width: 100% !important;
+        grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+        gap: 9px !important;
+    }
+
+    #listaAsistencia .asistencia-miembro,
+    .lista-asistencia .asistencia-miembro {
+        grid-template-columns: 18px 46px minmax(0, 1fr) !important;
+        gap: 7px !important;
+        min-height: 70px !important;
+        padding: 7px !important;
+    }
+
+    #listaAsistencia .asistencia-foto,
+    .lista-asistencia .asistencia-foto {
+        width: 46px !important;
+        height: 46px !important;
+    }
+
+    #listaAsistencia .asistencia-info strong,
+    .lista-asistencia .asistencia-info strong {
+        font-size: 12px !important;
+    }
+
+    #listaAsistencia .asistencia-info small,
+    .lista-asistencia .asistencia-info small {
+        font-size: 10px !important;
+    }
+
+    /* El reporte mantiene la anchura que ya tenía. */
+    #seccionReporte {
+        max-width: 760px !important;
+        width: 100% !important;
+        justify-self: center !important;
+        margin-left: auto !important;
+        margin-right: auto !important;
+    }
+}
+
+/* ANCHO INTERMEDIO PEQUEÑO: evita dos columnas demasiado estrechas. */
+@media (min-width: 681px) and (max-width: 760px) {
+    .paneles-superiores {
+        grid-template-columns: 1fr !important;
+    }
+
+    .paneles-superiores > .formulario,
+    .paneles-superiores > #seccionNuevoMiembro,
+    .paneles-superiores > .miembros,
+    .paneles-superiores > #seccionMiembrosRegistrados {
+        height: auto !important;
+        min-height: 0 !important;
+        max-height: none !important;
+    }
+
+    #listaAsistencia,
+    .lista-asistencia {
+        grid-template-columns: 1fr !important;
+    }
+}
+
+/* TELEFONO: las secciones de miembros y asistencia aprovechan
+   el ancho disponible. El reporte conserva su configuracion. */
+@media (max-width: 680px) {
+    main {
+        width: calc(100% - 16px) !important;
+        max-width: none !important;
+        margin-left: auto !important;
+        margin-right: auto !important;
+    }
+
+    .paneles-superiores {
+        width: 100% !important;
+        grid-template-columns: 1fr !important;
+        gap: 14px !important;
+    }
+
+    .paneles-superiores > .formulario,
+    .paneles-superiores > #seccionNuevoMiembro,
+    .paneles-superiores > .miembros,
+    .paneles-superiores > #seccionMiembrosRegistrados {
+        width: 100% !important;
+        height: auto !important;
+        min-height: 0 !important;
+        max-height: none !important;
+    }
+
+    #seccionMiembrosRegistrados #listaMiembros,
+    #listaMiembros {
+        width: 100% !important;
+        min-width: 0 !important;
+        max-width: none !important;
+    }
+
+    #seccionAsistencia,
+    #seccionControlAsistencia,
+    .asistencia,
+    .seccion-asistencia {
+        width: 100% !important;
+        max-width: none !important;
+    }
+
+    /* En telefono una sola columna evita tarjetas demasiado estrechas. */
+    #listaAsistencia,
+    .lista-asistencia {
+        width: 100% !important;
+        grid-template-columns: 1fr !important;
+    }
+
+    #listaAsistencia .asistencia-miembro,
+    .lista-asistencia .asistencia-miembro {
+        grid-template-columns: 20px 50px minmax(0, 1fr) !important;
+        gap: 8px !important;
+        min-height: 72px !important;
+    }
+
+    #listaAsistencia .asistencia-foto,
+    .lista-asistencia .asistencia-foto {
+        width: 50px !important;
+        height: 50px !important;
+    }
+
+    /* El reporte conserva su ancho y estructura actual dentro de main. */
+    #seccionReporte {
+        width: 100% !important;
+        max-width: none !important;
+    }
+}
