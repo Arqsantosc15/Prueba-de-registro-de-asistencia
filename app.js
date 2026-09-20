@@ -236,7 +236,8 @@ async function cargarPerfilUsuario(usuario) {
             "pastor",
             "lider",
             "líder",
-            "miembro"
+            "miembro",
+            "multimedia"
         ];
 
         if (!rolesPermitidos.includes(rol)) {
@@ -305,6 +306,10 @@ function esRolLider() {
 
 function esRolMiembro() {
     return rolUsuarioActual === "miembro";
+}
+
+function esRolMultimedia() {
+    return rolUsuarioActual === "multimedia";
 }
 
 function aplicarMinisterioSegunRol() {
@@ -387,7 +392,8 @@ function mostrarSistema() {
             secretario: "Secretario",
             pastor: "Pastor",
             lider: ministerioUsuarioActual ? `Líder de ${ministerioUsuarioActual}` : "Líder",
-            miembro: "Miembro"
+            miembro: "Miembro",
+            multimedia: "Multimedia"
         };
         rolUsuario.textContent = nombresRoles[rolUsuarioActual] || rolUsuarioActual;
     }
@@ -436,6 +442,15 @@ function mostrarSistema() {
         [seccionNuevoMiembro, seccionMiembrosRegistrados, seccionControlAsistencia, seccionReporte]
             .forEach(e => { if (e) e.style.display = ""; });
         [formularioMiembro, listaMiembrosElemento, botonCargarAsistencia, botonGuardarAsistencia, listaAsistenciaElemento]
+            .forEach(e => { if (e) e.style.display = ""; });
+        return;
+    }
+
+    if (rolUsuarioActual === "multimedia") {
+        // MULTIMEDIA: puede crear y editar miembros, pero no asistencia ni reportes.
+        [seccionNuevoMiembro, seccionMiembrosRegistrados]
+            .forEach(e => { if (e) e.style.display = ""; });
+        [formularioMiembro, listaMiembrosElemento]
             .forEach(e => { if (e) e.style.display = ""; });
         return;
     }
@@ -845,7 +860,8 @@ if (contadorTotal) {
 
     const puedeEditar =
         rolUsuarioActual === "administrador" ||
-        rolUsuarioActual === "secretario";
+        rolUsuarioActual === "secretario" ||
+        rolUsuarioActual === "multimedia";
 
     miembros.forEach(function (miembro) {
 
@@ -1053,7 +1069,7 @@ function inicializarModalEditar() {
 
 async function abrirModalEditar(id) {
 
-    if (!esRolAdministrativo()) {
+    if (!esRolAdministrativo() && !esRolMultimedia()) {
         alert("❌ No tiene permisos para editar miembros.");
         return;
     }
@@ -1169,6 +1185,11 @@ function vistaPreviaFotoEditar() {
 
 async function guardarCambiosMiembro(event) {
     event.preventDefault();
+
+    if (!esRolAdministrativo() && !esRolMultimedia()) {
+        alert("❌ No tiene permisos para editar miembros.");
+        return;
+    }
 
     const id = editarId ? editarId.value : "";
     const nombre = editarNombre
@@ -1986,22 +2007,61 @@ async function cargarReporte() {
             let reunionesEsperadas = 0;
             let reunionesAsistidas = 0;
             let reunionesAusentes = 0;
+            let asistenciasExtra = 0;
 
             reuniones.forEach(reunion => {
-                const dia = obtenerDiaDeFecha(reunion.fecha);
-                if (miembro[dia] !== true) return;
 
-                reunionesEsperadas++;
-                const clave = `${Number(miembro.id)}|${reunion.fecha}|${reunion.servicio}`;
-                if (asistenciasReales.has(clave)) reunionesAsistidas++;
-                else reunionesAusentes++;
-            });
+    const dia =
+        obtenerDiaDeFecha(reunion.fecha);
+
+    const clave =
+        `${Number(miembro.id)}|${reunion.fecha}|${reunion.servicio}`;
+
+    const asistioRealmente =
+        asistenciasReales.has(clave);
+
+    const esDiaHabitual =
+        miembro[dia] === true;
+
+
+    // =====================================================
+    // DÍA HABITUAL
+    // =====================================================
+
+    if (esDiaHabitual) {
+
+        reunionesEsperadas++;
+
+        if (asistioRealmente) {
+
+            reunionesAsistidas++;
+
+        } else {
+
+            reunionesAusentes++;
+        }
+
+        return;
+    }
+
+
+    // =====================================================
+    // DÍA NO HABITUAL
+    // =====================================================
+
+    if (asistioRealmente) {
+
+        reunionesAsistidas++;
+
+        asistenciasExtra++;
+    }
+});
 
             const porcentaje = reunionesEsperadas > 0
                 ? Math.min(100, Math.round((reunionesAsistidas / reunionesEsperadas) * 100))
                 : 0;
 
-            return { miembro, esperadas: reunionesEsperadas, asistencias: reunionesAsistidas, ausencias: reunionesAusentes, porcentaje };
+            return { miembro, esperadas: reunionesEsperadas, asistencias: reunionesAsistidas, ausencias: reunionesAusentes, asistenciasExtra, porcentaje };
         });
 
         const totalMiembros = miembros.length;
