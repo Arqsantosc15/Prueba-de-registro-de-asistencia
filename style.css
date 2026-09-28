@@ -2474,152 +2474,113 @@ html, body {
     }
 }
 
+/* Campo especial para miembros del ministerio Amigos y visita */
+.campo-visita {
+    display: none;
+}
+
+.campo-visita.mostrar {
+    display: block;
+}
+
 /* ==========================================================
-   CORRECCIÓN HORIZONTAL REAL v5
-   SOLO TELÉFONO/TABLET EN ORIENTACIÓN HORIZONTAL
-   NO MODIFICA EL REPORTE DE ASISTENCIA
+   CORRECCIÓN RESPONSIVE FINAL - 28/09/2026
+   ==========================================================
+   Objetivo:
+   - No alterar la estructura ni la funcionalidad de index.html/app.js.
+   - Mantener Nuevo miembro + Miembros registrados en dos columnas
+     en escritorio.
+   - En tablet/teléfono, mostrar los paneles a todo el ancho.
+   - Evitar que <main> cree una segunda cuadrícula que deje
+     Control de asistencia y Reporte ocupando media pantalla.
+   - No modificar el diseño interno de Reporte de asistencia.
    ========================================================== */
 
-@media (orientation: landscape) and (max-width: 900px) {
-    /* Aprovechar todo el ancho físico disponible */
+/* El <main> contiene varias secciones consecutivas. La cuadrícula
+   debe pertenecer únicamente a .paneles-superiores. */
+main {
+    display: block !important;
+    width: min(1180px, calc(100% - 32px)) !important;
+    margin: 24px auto 36px !important;
+}
+
+/* Escritorio: solamente los dos paneles superiores van en columnas. */
+.paneles-superiores {
+    display: grid !important;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) !important;
+    gap: 20px !important;
+    width: 100% !important;
+}
+
+/* Asistencia y reporte ocupan el ancho disponible del main. */
+#seccionAsistencia,
+#seccionControlAsistencia,
+.asistencia,
+.seccion-asistencia,
+#seccionReporte,
+.reporte {
+    width: 100% !important;
+    max-width: none !important;
+    min-width: 0 !important;
+    box-sizing: border-box !important;
+}
+
+/* Tablet y teléfono, incluyendo teléfono en horizontal:
+   una columna para evitar el espacio vacío lateral. */
+@media (max-width: 900px) {
     main {
-        width: calc(100% - 20px) !important;
-        max-width: none !important;
-        margin: 12px auto 24px !important;
+        display: block !important;
+        width: calc(100% - 24px) !important;
+        margin-left: auto !important;
+        margin-right: auto !important;
     }
 
-    /* Mantener Nuevo miembro + Miembros registrados lado a lado */
     .paneles-superiores {
+        display: grid !important;
+        grid-template-columns: minmax(0, 1fr) !important;
+        gap: 16px !important;
         width: 100% !important;
-        grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) !important;
-        gap: 12px !important;
     }
 
-    .paneles-superiores > #seccionNuevoMiembro,
-    .paneles-superiores > #seccionMiembrosRegistrados,
     .paneles-superiores > .formulario,
-    .paneles-superiores > .miembros {
-        width: 100% !important;
-        min-width: 0 !important;
-        height: 560px !important;
-        min-height: 560px !important;
-        max-height: 560px !important;
-    }
-
-    /* Reducir espacios internos sin cambiar la estructura de PC */
-    #seccionNuevoMiembro,
-    #seccionMiembrosRegistrados {
-        padding: 14px !important;
-        box-sizing: border-box !important;
-    }
-
-    /* Lista de registrados: una tarjeta por fila para que el contenido respire */
-    #listaMiembros {
-        width: 100% !important;
-        min-width: 0 !important;
-        max-width: 100% !important;
-        display: flex !important;
-        flex-direction: column !important;
-        gap: 8px !important;
-        overflow-y: auto !important;
-        overflow-x: hidden !important;
-    }
-
-    #listaMiembros .miembro-card {
+    .paneles-superiores > #seccionNuevoMiembro,
+    .paneles-superiores > .miembros,
+    .paneles-superiores > #seccionMiembrosRegistrados {
+        grid-column: 1 !important;
         width: 100% !important;
         min-width: 0 !important;
         box-sizing: border-box !important;
     }
 
-    /* Control de asistencia: ancho completo debajo de los dos paneles */
     #seccionAsistencia,
     #seccionControlAsistencia,
     .asistencia,
-    .seccion-asistencia {
-        grid-column: 1 / -1 !important;
+    .seccion-asistencia,
+    #seccionReporte,
+    .reporte {
         width: 100% !important;
-        min-width: 0 !important;
         max-width: none !important;
-        margin-left: 0 !important;
-        margin-right: 0 !important;
-        box-sizing: border-box !important;
-    }
-
-    #seccionAsistencia .asistencia-contenedor,
-    #seccionControlAsistencia .asistencia-contenedor,
-    .asistencia .asistencia-contenedor {
-        width: 100% !important;
         min-width: 0 !important;
-        padding: 14px !important;
         box-sizing: border-box !important;
-    }
-
-    /* En teléfono horizontal las tarjetas de asistencia pasan a UNA columna.
-       Así dejan de quedar comprimidas en dos columnas. */
-    #listaAsistencia,
-    .lista-asistencia {
-        width: 100% !important;
-        min-width: 0 !important;
-        max-width: 100% !important;
-        grid-template-columns: 1fr !important;
-        grid-auto-flow: row !important;
-        gap: 8px !important;
-        height: 430px !important;
-        max-height: 430px !important;
-        overflow-y: auto !important;
-        overflow-x: hidden !important;
-        box-sizing: border-box !important;
-    }
-
-    #listaAsistencia .asistencia-ministerio,
-    .lista-asistencia .asistencia-ministerio {
-        grid-column: 1 !important;
-        width: 100% !important;
-    }
-
-    #listaAsistencia .asistencia-miembro,
-    .lista-asistencia .asistencia-miembro {
-        width: 100% !important;
-        min-width: 0 !important;
-        grid-column: 1 !important;
-        box-sizing: border-box !important;
-    }
-
-    /* No permitir que las columnas internas del formulario reduzcan demasiado */
-    #seccionAsistencia .filtros-asistencia,
-    #seccionControlAsistencia .filtros-asistencia,
-    .asistencia .filtros-asistencia,
-    .seccion-asistencia .filtros-asistencia {
-        width: 100% !important;
-        min-width: 0 !important;
-        grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) !important;
-        gap: 10px !important;
     }
 }
 
-/* Teléfono horizontal MUY estrecho: apilar solamente los dos paneles superiores. */
-@media (orientation: landscape) and (max-width: 600px) {
+@media (max-width: 680px) {
     main {
-        width: calc(100% - 12px) !important;
+        width: calc(100% - 16px) !important;
+        margin-top: 14px !important;
     }
 
     .paneles-superiores {
-        grid-template-columns: 1fr !important;
-        gap: 10px !important;
+        grid-template-columns: minmax(0, 1fr) !important;
+        gap: 14px !important;
     }
 
-    .paneles-superiores > #seccionNuevoMiembro,
-    .paneles-superiores > #seccionMiembrosRegistrados,
     .paneles-superiores > .formulario,
-    .paneles-superiores > .miembros {
-        height: 470px !important;
-        min-height: 470px !important;
-        max-height: 470px !important;
-    }
-
-    #listaAsistencia,
-    .lista-asistencia {
-        height: 360px !important;
-        max-height: 360px !important;
+    .paneles-superiores > #seccionNuevoMiembro,
+    .paneles-superiores > .miembros,
+    .paneles-superiores > #seccionMiembrosRegistrados {
+        width: 100% !important;
+        min-width: 0 !important;
     }
 }
