@@ -2953,3 +2953,66 @@ main {
         max-width: none !important;
     }
 }
+
+
+/* ==========================================================
+   V4 - CONTROL DE ASISTENCIA / CAMPOS REALMENTE IGUALES
+   Fecha y Servicio/Reunión
+   ========================================================== */
+
+#seccionAsistencia .filtros-asistencia,
+#seccionControlAsistencia .filtros-asistencia,
+.asistencia .filtros-asistencia,
+.seccion-asistencia .filtros-asistencia {
+    display: grid !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+    box-sizing: border-box !important;
+    gap: 12px !important;
+}
+
+#seccionAsistencia .filtros-asistencia > .campo-asistencia,
+#seccionControlAsistencia .filtros-asistencia > .campo-asistencia,
+.asistencia .filtros-asistencia > .campo-asistencia,
+.seccion-asistencia .filtros-asistencia > .campo-asistencia {
+    width: auto !important;
+    min-width: 0 !important;
+    max-width: none !important;
+    box-sizing: border-box !important;
+}
+
+#seccionAsistencia .filtros-asistencia > .campo-asistencia > input,
+#seccionAsistencia .filtros-asistencia > .campo-asistencia > select,
+#seccionControlAsistencia .filtros-asistencia > .campo-asistencia > input,
+#seccionControlAsistencia .filtros-asistencia > .campo-asistencia > select,
+.asistencia .filtros-asistencia > .campo-asistencia > input,
+.asistencia .filtros-asistencia > .campo-asistencia > select,
+.seccion-asistencia .filtros-asistencia > .campo-asistencia > input,
+.seccion-asistencia .filtros-asistencia > .campo-asistencia > select {
+    width: 100% !important;
+    min-width: 0 !important;
+    max-width: none !important;
+    box-sizing: border-box !important;
+}
+
+/* Teléfono vertical */
+@media (orientation: portrait) and (max-width: 700px) {
+    #seccionAsistencia .filtros-asistencia,
+    #seccionControlAsistencia .filtros-asistencia,
+    .asistencia .filtros-asistencia,
+    .seccion-asistencia .filtros-asistencia {
+        grid-template-columns: minmax(0, 1fr) !important;
+    }
+}
+
+/* Teléfono horizontal: se identifica por la altura corta de la pantalla.
+   No depende del ancho CSS del dispositivo. */
+@media (orientation: landscape) and (max-height: 700px) {
+    #seccionAsistencia .filtros-asistencia,
+    #seccionControlAsistencia .filtros-asistencia,
+    .asistencia .filtros-asistencia,
+    .seccion-asistencia .filtros-asistencia {
+        grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) !important;
+    }
+}
