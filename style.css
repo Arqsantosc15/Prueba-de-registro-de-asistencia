@@ -2736,3 +2736,68 @@ main {
         width: 100% !important;
     }
 }
+
+/* ==========================================================
+   AJUSTE FINAL - CONTROL DE ASISTENCIA
+   Fecha y Servicio/Reunión deben tener EXACTAMENTE el mismo ancho
+   en teléfono vertical y horizontal.
+   ========================================================== */
+#seccionAsistencia .filtros-asistencia,
+#seccionControlAsistencia .filtros-asistencia,
+.asistencia .filtros-asistencia,
+.seccion-asistencia .filtros-asistencia {
+    display: grid !important;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) !important;
+    width: 100% !important;
+    gap: 18px !important;
+    align-items: end !important;
+}
+
+#seccionAsistencia .campo-asistencia,
+#seccionControlAsistencia .campo-asistencia,
+.asistencia .campo-asistencia,
+.seccion-asistencia .campo-asistencia {
+    width: 100% !important;
+    min-width: 0 !important;
+    max-width: none !important;
+    box-sizing: border-box !important;
+}
+
+#seccionAsistencia .campo-asistencia input,
+#seccionAsistencia .campo-asistencia select,
+#seccionControlAsistencia .campo-asistencia input,
+#seccionControlAsistencia .campo-asistencia select,
+.asistencia .campo-asistencia input,
+.asistencia .campo-asistencia select,
+.seccion-asistencia .campo-asistencia input,
+.seccion-asistencia .campo-asistencia select {
+    display: block !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    max-width: none !important;
+    box-sizing: border-box !important;
+}
+
+/* Vertical: ambos campos ocupan exactamente el mismo ancho. */
+@media (max-width: 680px) and (orientation: portrait) {
+    #seccionAsistencia .filtros-asistencia,
+    #seccionControlAsistencia .filtros-asistencia,
+    .asistencia .filtros-asistencia,
+    .seccion-asistencia .filtros-asistencia {
+        grid-template-columns: minmax(0, 1fr) !important;
+        gap: 12px !important;
+        width: 100% !important;
+    }
+}
+
+/* Horizontal: dos campos exactamente iguales, sin que Fecha crezca. */
+@media (max-width: 900px) and (orientation: landscape) {
+    #seccionAsistencia .filtros-asistencia,
+    #seccionControlAsistencia .filtros-asistencia,
+    .asistencia .filtros-asistencia,
+    .seccion-asistencia .filtros-asistencia {
+        grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) !important;
+        gap: 12px !important;
+        width: 100% !important;
+    }
+}
