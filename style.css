@@ -2619,3 +2619,120 @@ main {
         grid-template-columns: 1fr !important;
     }
 }
+
+/* ==========================================================
+   AJUSTE FINAL - REPORTE DE ASISTENCIA
+   28/09/2026
+   ==========================================================
+   PC:
+   - Tipo de reporte y selector de fecha/mes/año arriba.
+   - Ver reporte ocupa toda la fila inferior.
+   - El reporte completo usa todo el ancho disponible.
+
+   TELÉFONO VERTICAL:
+   - Las tarjetas conservan la distribución de foto + datos +
+     estadísticas en columnas, evitando que las estadísticas
+     bajen y se deformen.
+
+   TELÉFONO HORIZONTAL:
+   - Se mantienen las 2 columnas ya corregidas.
+   ========================================================== */
+
+/* PC y pantallas grandes: controles en 2 columnas y botón abajo. */
+#seccionReporte .reporte-config-multi,
+.reporte .reporte-config-multi {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) !important;
+    gap: 12px 18px !important;
+    align-items: end !important;
+}
+
+#seccionReporte .reporte-config-multi .btn-reporte,
+.reporte .reporte-config-multi .btn-reporte {
+    grid-column: 1 / -1 !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    margin-top: 2px !important;
+}
+
+/* El reporte completo permanece a todo el ancho del contenedor. */
+#seccionReporte,
+#seccionReporte .reporte-contenedor,
+#seccionReporte .resumen-reporte,
+#seccionReporte .resultado-reporte {
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+    box-sizing: border-box !important;
+}
+
+/* Teléfono vertical: conservar la estructura interna de cada tarjeta. */
+@media (max-width: 680px) and (orientation: portrait) {
+    #seccionReporte .resultado-reporte,
+    .reporte .resultado-reporte {
+        grid-template-columns: 1fr !important;
+        gap: 12px !important;
+    }
+
+    #seccionReporte .reporte-miembro,
+    .reporte .reporte-miembro {
+        display: grid !important;
+        grid-template-columns: 52px minmax(0, 1fr) 96px !important;
+        gap: 8px !important;
+        align-items: center !important;
+        width: 100% !important;
+        min-width: 0 !important;
+        box-sizing: border-box !important;
+        padding: 10px !important;
+    }
+
+    #seccionReporte .reporte-miembro .reporte-foto,
+    .reporte .reporte-miembro .reporte-foto {
+        width: 52px !important;
+        height: 52px !important;
+        max-width: 52px !important;
+        max-height: 52px !important;
+    }
+
+    #seccionReporte .reporte-miembro .reporte-info,
+    .reporte .reporte-miembro .reporte-info {
+        min-width: 0 !important;
+        overflow-wrap: anywhere !important;
+    }
+
+    #seccionReporte .reporte-miembro .reporte-estadistica,
+    .reporte .reporte-miembro .reporte-estadistica {
+        grid-column: auto !important;
+        width: 100% !important;
+        min-width: 0 !important;
+        display: block !important;
+        text-align: center !important;
+        overflow-wrap: anywhere !important;
+    }
+
+    #seccionReporte .reporte-miembro .reporte-porcentaje,
+    .reporte .reporte-miembro .reporte-porcentaje {
+        margin-bottom: 2px !important;
+    }
+}
+
+/* Teléfono horizontal: 2 columnas de tarjetas y distribución interna estable. */
+@media (max-width: 900px) and (orientation: landscape) {
+    #seccionReporte .resultado-reporte,
+    .reporte .resultado-reporte {
+        grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+        gap: 10px !important;
+    }
+
+    #seccionReporte .reporte-miembro,
+    .reporte .reporte-miembro {
+        grid-template-columns: 52px minmax(0, 1fr) 96px !important;
+        gap: 8px !important;
+    }
+
+    #seccionReporte .reporte-miembro .reporte-estadistica,
+    .reporte .reporte-miembro .reporte-estadistica {
+        grid-column: auto !important;
+        display: block !important;
+        width: 100% !important;
+    }
+}
