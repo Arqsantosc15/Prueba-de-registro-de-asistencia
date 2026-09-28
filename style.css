@@ -2867,3 +2867,89 @@ main {
         gap: 12px !important;
     }
 }
+
+/* ==========================================================
+   CORRECCION DEFINITIVA - CONTROL DE ASISTENCIA
+   Fecha y Servicio/Reunion: MISMO ANCHO REAL
+   ========================================================== */
+#seccionAsistencia .filtros-asistencia,
+#seccionControlAsistencia .filtros-asistencia,
+.asistencia .filtros-asistencia,
+.seccion-asistencia .filtros-asistencia {
+    display: flex !important;
+    flex-wrap: nowrap !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    gap: 12px !important;
+    box-sizing: border-box !important;
+}
+
+#seccionAsistencia .filtros-asistencia > .campo-asistencia,
+#seccionControlAsistencia .filtros-asistencia > .campo-asistencia,
+.asistencia .filtros-asistencia > .campo-asistencia,
+.seccion-asistencia .filtros-asistencia > .campo-asistencia {
+    flex: 1 1 0 !important;
+    width: 0 !important;
+    min-width: 0 !important;
+    max-width: none !important;
+    box-sizing: border-box !important;
+}
+
+#seccionAsistencia .filtros-asistencia > .campo-asistencia > input,
+#seccionAsistencia .filtros-asistencia > .campo-asistencia > select,
+#seccionControlAsistencia .filtros-asistencia > .campo-asistencia > input,
+#seccionControlAsistencia .filtros-asistencia > .campo-asistencia > select,
+.asistencia .filtros-asistencia > .campo-asistencia > input,
+.asistencia .filtros-asistencia > .campo-asistencia > select,
+.seccion-asistencia .filtros-asistencia > .campo-asistencia > input,
+.seccion-asistencia .filtros-asistencia > .campo-asistencia > select {
+    display: block !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    max-width: none !important;
+    box-sizing: border-box !important;
+}
+
+/* Telefono vertical: misma anchura, uno debajo del otro. */
+@media (max-width: 680px) and (orientation: portrait) {
+    #seccionAsistencia .filtros-asistencia,
+    #seccionControlAsistencia .filtros-asistencia,
+    .asistencia .filtros-asistencia,
+    .seccion-asistencia .filtros-asistencia {
+        flex-direction: column !important;
+        flex-wrap: nowrap !important;
+        gap: 12px !important;
+    }
+
+    #seccionAsistencia .filtros-asistencia > .campo-asistencia,
+    #seccionControlAsistencia .filtros-asistencia > .campo-asistencia,
+    .asistencia .filtros-asistencia > .campo-asistencia,
+    .seccion-asistencia .filtros-asistencia > .campo-asistencia {
+        flex: 0 0 auto !important;
+        width: 100% !important;
+        max-width: 100% !important;
+    }
+}
+
+/* Telefono horizontal: dos mitades EXACTAMENTE iguales.
+   Se usa max-height para que esta regla no afecte el PC. */
+@media (max-width: 1000px) and (max-height: 700px) and (orientation: landscape) {
+    #seccionAsistencia .filtros-asistencia,
+    #seccionControlAsistencia .filtros-asistencia,
+    .asistencia .filtros-asistencia,
+    .seccion-asistencia .filtros-asistencia {
+        flex-direction: row !important;
+        flex-wrap: nowrap !important;
+        gap: 12px !important;
+    }
+
+    #seccionAsistencia .filtros-asistencia > .campo-asistencia,
+    #seccionControlAsistencia .filtros-asistencia > .campo-asistencia,
+    .asistencia .filtros-asistencia > .campo-asistencia,
+    .seccion-asistencia .filtros-asistencia > .campo-asistencia {
+        flex: 1 1 0 !important;
+        width: 0 !important;
+        min-width: 0 !important;
+        max-width: none !important;
+    }
+}
