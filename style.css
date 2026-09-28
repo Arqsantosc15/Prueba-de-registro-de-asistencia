@@ -2801,3 +2801,69 @@ main {
         width: 100% !important;
     }
 }
+
+/* ==========================================================
+   CORRECCION REAL - CAMPOS FECHA / SERVICIO
+   28/09/2026
+   ========================================================== */
+
+#seccionAsistencia .filtros-asistencia,
+#seccionControlAsistencia .filtros-asistencia,
+.asistencia .filtros-asistencia,
+.seccion-asistencia .filtros-asistencia {
+    display: grid !important;
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+}
+
+#seccionAsistencia .filtros-asistencia > .campo-asistencia,
+#seccionControlAsistencia .filtros-asistencia > .campo-asistencia,
+.asistencia .filtros-asistencia > .campo-asistencia,
+.seccion-asistencia .filtros-asistencia > .campo-asistencia {
+    width: 100% !important;
+    min-width: 0 !important;
+    max-width: none !important;
+    box-sizing: border-box !important;
+}
+
+#seccionAsistencia .filtros-asistencia > .campo-asistencia > input,
+#seccionAsistencia .filtros-asistencia > .campo-asistencia > select,
+#seccionControlAsistencia .filtros-asistencia > .campo-asistencia > input,
+#seccionControlAsistencia .filtros-asistencia > .campo-asistencia > select,
+.asistencia .filtros-asistencia > .campo-asistencia > input,
+.asistencia .filtros-asistencia > .campo-asistencia > select,
+.seccion-asistencia .filtros-asistencia > .campo-asistencia > input,
+.seccion-asistencia .filtros-asistencia > .campo-asistencia > select {
+    width: 100% !important;
+    min-width: 0 !important;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+}
+
+/* Telefono vertical: los dos campos ocupan todo el ancho,
+   uno debajo del otro, exactamente con la misma medida. */
+@media (max-width: 680px) and (orientation: portrait) {
+    #seccionAsistencia .filtros-asistencia,
+    #seccionControlAsistencia .filtros-asistencia,
+    .asistencia .filtros-asistencia,
+    .seccion-asistencia .filtros-asistencia {
+        grid-template-columns: minmax(0, 1fr) !important;
+        grid-auto-columns: minmax(0, 1fr) !important;
+        gap: 12px !important;
+    }
+}
+
+/* Telefono horizontal: Fecha y Servicio/Reunion son dos
+   columnas exactamente iguales. */
+@media (max-width: 900px) and (orientation: landscape) {
+    #seccionAsistencia .filtros-asistencia,
+    #seccionControlAsistencia .filtros-asistencia,
+    .asistencia .filtros-asistencia,
+    .seccion-asistencia .filtros-asistencia {
+        grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+        grid-auto-columns: minmax(0, 1fr) !important;
+        gap: 12px !important;
+    }
+}
