@@ -2584,3 +2584,38 @@ main {
         min-width: 0 !important;
     }
 }
+
+/* ==========================================================
+   CORRECCIÓN FINAL - REPORTE DE ASISTENCIA EN TELÉFONO
+   28/09/2026
+   ==========================================================
+   En horizontal: el reporte usa dos columnas, igual que
+   Control de asistencia.
+   En vertical: vuelve a una sola columna para evitar que
+   las tarjetas queden comprimidas en un espacio pequeño.
+   ========================================================== */
+
+@media (max-width: 900px) and (orientation: landscape) {
+    #seccionReporte .resumen-reporte,
+    .reporte .resumen-reporte {
+        grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    }
+
+    #seccionReporte .resultado-reporte,
+    .reporte .resultado-reporte {
+        grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+        gap: 10px !important;
+    }
+}
+
+@media (max-width: 680px) and (orientation: portrait) {
+    #seccionReporte .resumen-reporte,
+    .reporte .resumen-reporte {
+        grid-template-columns: 1fr !important;
+    }
+
+    #seccionReporte .resultado-reporte,
+    .reporte .resultado-reporte {
+        grid-template-columns: 1fr !important;
+    }
+}
