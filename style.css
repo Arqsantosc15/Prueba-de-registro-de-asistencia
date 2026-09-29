@@ -2857,3 +2857,115 @@ main {
         grid-column: 1 / -1 !important;
     }
 }
+
+/* ==========================================================
+   V9 - REFERENCIA PC PARA CONTROLES EN CELULAR
+   Correccion quirurgica: SOLO los bloques superiores de
+   Control de asistencia y Reporte de asistencia.
+
+   La referencia es la distribucion que ya funciona en PC:
+   dos columnas exactamente iguales en horizontal y una
+   columna completa en vertical.
+
+   NO modifica main, paneles, listas, tarjetas ni app.js.
+   ========================================================== */
+
+/* ---------- CONTROL DE ASISTENCIA ---------- */
+#seccionAsistencia .filtros-asistencia {
+    display: grid !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+    column-gap: 18px !important;
+    row-gap: 18px !important;
+    align-items: end !important;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) !important;
+}
+
+#seccionAsistencia .filtros-asistencia > .campo-asistencia {
+    display: block !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+    justify-self: stretch !important;
+}
+
+#seccionAsistencia .filtros-asistencia > .campo-asistencia > input,
+#seccionAsistencia .filtros-asistencia > .campo-asistencia > select {
+    display: block !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    max-width: 100% !important;
+    inline-size: 100% !important;
+    box-sizing: border-box !important;
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+}
+
+@media (max-width: 900px) and (orientation: landscape) {
+    #seccionAsistencia .filtros-asistencia {
+        grid-template-columns: calc((100% - 18px) / 2) calc((100% - 18px) / 2) !important;
+    }
+}
+
+@media (max-width: 680px) and (orientation: portrait) {
+    #seccionAsistencia .filtros-asistencia {
+        grid-template-columns: 1fr !important;
+    }
+}
+
+/* ---------- REPORTE DE ASISTENCIA ---------- */
+#seccionReporte .reporte-config-multi {
+    display: grid !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+    column-gap: 18px !important;
+    row-gap: 12px !important;
+    align-items: end !important;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) !important;
+}
+
+#seccionReporte .reporte-config-multi > .campo,
+#seccionReporte .reporte-config-multi > .btn-reporte {
+    width: 100% !important;
+    min-width: 0 !important;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+    justify-self: stretch !important;
+}
+
+#seccionReporte .reporte-config-multi > .campo > input,
+#seccionReporte .reporte-config-multi > .campo > select {
+    display: block !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    max-width: 100% !important;
+    inline-size: 100% !important;
+    box-sizing: border-box !important;
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+}
+
+#seccionReporte .reporte-config-multi > .btn-reporte {
+    grid-column: 1 / -1 !important;
+}
+
+@media (max-width: 900px) and (orientation: landscape) {
+    #seccionReporte .reporte-config-multi {
+        grid-template-columns: calc((100% - 18px) / 2) calc((100% - 18px) / 2) !important;
+    }
+}
+
+@media (max-width: 680px) and (orientation: portrait) {
+    #seccionReporte .reporte-config-multi {
+        grid-template-columns: 1fr !important;
+    }
+
+    #seccionReporte .reporte-config-multi > .btn-reporte {
+        grid-column: 1 !important;
+    }
+}
