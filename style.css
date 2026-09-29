@@ -2474,545 +2474,73 @@ html, body {
     }
 }
 
-/* Campo especial para miembros del ministerio Amigos y visita */
-.campo-visita {
-    display: none;
-}
-
-.campo-visita.mostrar {
-    display: block;
-}
-
 /* ==========================================================
-   CORRECCIÓN RESPONSIVE FINAL - 28/09/2026
-   ==========================================================
-   Objetivo:
-   - No alterar la estructura ni la funcionalidad de index.html/app.js.
-   - Mantener Nuevo miembro + Miembros registrados en dos columnas
-     en escritorio.
-   - En tablet/teléfono, mostrar los paneles a todo el ancho.
-   - Evitar que <main> cree una segunda cuadrícula que deje
-     Control de asistencia y Reporte ocupando media pantalla.
-   - No modificar el diseño interno de Reporte de asistencia.
+   RESTAURACION REPORTE DE ASISTENCIA - VISUALIZACION ANTERIOR
    ========================================================== */
 
-/* El <main> contiene varias secciones consecutivas. La cuadrícula
-   debe pertenecer únicamente a .paneles-superiores. */
-main {
-    display: block !important;
-    width: min(1180px, calc(100% - 32px)) !important;
-    margin: 24px auto 36px !important;
-}
-
-/* Escritorio: solamente los dos paneles superiores van en columnas. */
-.paneles-superiores {
-    display: grid !important;
-    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) !important;
-    gap: 20px !important;
+/* El reporte conserva el mismo ancho del bloque principal. */
+main > #seccionReporte,
+#seccionReporte.reporte {
+    grid-column: 1 / -1 !important;
     width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+    margin: 20px 0 0 !important;
+    box-sizing: border-box !important;
+    justify-self: stretch !important;
 }
 
-/* Asistencia y reporte ocupan el ancho disponible del main. */
-#seccionAsistencia,
-#seccionControlAsistencia,
-.asistencia,
-.seccion-asistencia,
-#seccionReporte,
-.reporte {
+#seccionReporte .reporte-contenedor {
     width: 100% !important;
     max-width: none !important;
     min-width: 0 !important;
     box-sizing: border-box !important;
+    overflow: hidden !important;
 }
 
-/* Tablet y teléfono, incluyendo teléfono en horizontal:
-   una columna para evitar el espacio vacío lateral. */
-@media (max-width: 900px) {
-    main {
-        display: block !important;
-        width: calc(100% - 24px) !important;
-        margin-left: auto !important;
-        margin-right: auto !important;
-    }
-
-    .paneles-superiores {
-        display: grid !important;
-        grid-template-columns: minmax(0, 1fr) !important;
-        gap: 16px !important;
-        width: 100% !important;
-    }
-
-    .paneles-superiores > .formulario,
-    .paneles-superiores > #seccionNuevoMiembro,
-    .paneles-superiores > .miembros,
-    .paneles-superiores > #seccionMiembrosRegistrados {
-        grid-column: 1 !important;
-        width: 100% !important;
-        min-width: 0 !important;
-        box-sizing: border-box !important;
-    }
-
-    #seccionAsistencia,
-    #seccionControlAsistencia,
-    .asistencia,
-    .seccion-asistencia,
-    #seccionReporte,
-    .reporte {
-        width: 100% !important;
-        max-width: none !important;
-        min-width: 0 !important;
-        box-sizing: border-box !important;
-    }
-}
-
-@media (max-width: 680px) {
-    main {
-        width: calc(100% - 16px) !important;
-        margin-top: 14px !important;
-    }
-
-    .paneles-superiores {
-        grid-template-columns: minmax(0, 1fr) !important;
-        gap: 14px !important;
-    }
-
-    .paneles-superiores > .formulario,
-    .paneles-superiores > #seccionNuevoMiembro,
-    .paneles-superiores > .miembros,
-    .paneles-superiores > #seccionMiembrosRegistrados {
-        width: 100% !important;
-        min-width: 0 !important;
-    }
-}
-
-/* ==========================================================
-   CORRECCIÓN FINAL - REPORTE DE ASISTENCIA EN TELÉFONO
-   28/09/2026
-   ==========================================================
-   En horizontal: el reporte usa dos columnas, igual que
-   Control de asistencia.
-   En vertical: vuelve a una sola columna para evitar que
-   las tarjetas queden comprimidas en un espacio pequeño.
-   ========================================================== */
-
-@media (max-width: 900px) and (orientation: landscape) {
-    #seccionReporte .resumen-reporte,
-    .reporte .resumen-reporte {
-        grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
-    }
-
-    #seccionReporte .resultado-reporte,
-    .reporte .resultado-reporte {
-        grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
-        gap: 10px !important;
-    }
-}
-
-@media (max-width: 680px) and (orientation: portrait) {
-    #seccionReporte .resumen-reporte,
-    .reporte .resumen-reporte {
-        grid-template-columns: 1fr !important;
-    }
-
-    #seccionReporte .resultado-reporte,
-    .reporte .resultado-reporte {
-        grid-template-columns: 1fr !important;
-    }
-}
-
-/* ==========================================================
-   AJUSTE FINAL - REPORTE DE ASISTENCIA
-   28/09/2026
-   ==========================================================
-   PC:
-   - Tipo de reporte y selector de fecha/mes/año arriba.
-   - Ver reporte ocupa toda la fila inferior.
-   - El reporte completo usa todo el ancho disponible.
-
-   TELÉFONO VERTICAL:
-   - Las tarjetas conservan la distribución de foto + datos +
-     estadísticas en columnas, evitando que las estadísticas
-     bajen y se deformen.
-
-   TELÉFONO HORIZONTAL:
-   - Se mantienen las 2 columnas ya corregidas.
-   ========================================================== */
-
-/* PC y pantallas grandes: controles en 2 columnas y botón abajo. */
-#seccionReporte .reporte-config-multi,
-.reporte .reporte-config-multi {
+/* Visualizacion anterior: Tipo de reporte + Fecha en dos columnas. */
+#seccionReporte .reporte-config-multi {
+    display: grid !important;
     grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) !important;
     gap: 12px 18px !important;
     align-items: end !important;
+    width: 100% !important;
+    max-width: none !important;
+    box-sizing: border-box !important;
 }
 
-#seccionReporte .reporte-config-multi .btn-reporte,
-.reporte .reporte-config-multi .btn-reporte {
+#seccionReporte .reporte-config-multi .campo {
+    width: 100% !important;
+    min-width: 0 !important;
+    box-sizing: border-box !important;
+}
+
+/* Ver reporte ocupa toda la fila inferior. */
+#seccionReporte .reporte-config-multi .btn-reporte {
     grid-column: 1 / -1 !important;
     width: 100% !important;
     min-width: 0 !important;
+    box-sizing: border-box !important;
     margin-top: 2px !important;
 }
 
-/* El reporte completo permanece a todo el ancho del contenedor. */
-#seccionReporte,
-#seccionReporte .reporte-contenedor,
-#seccionReporte .resumen-reporte,
-#seccionReporte .resultado-reporte {
-    width: 100% !important;
-    max-width: 100% !important;
-    min-width: 0 !important;
-    box-sizing: border-box !important;
-}
+@media (max-width: 680px) {
+    #seccionReporte {
+        width: 100% !important;
+        margin-top: 14px !important;
+    }
 
-/* Teléfono vertical: conservar la estructura interna de cada tarjeta. */
-@media (max-width: 680px) and (orientation: portrait) {
-    #seccionReporte .resultado-reporte,
-    .reporte .resultado-reporte {
+    #seccionReporte .reporte-contenedor {
+        padding: 14px !important;
+    }
+
+    /* En telefono se apilan para evitar desbordamiento horizontal. */
+    #seccionReporte .reporte-config-multi {
         grid-template-columns: 1fr !important;
-        gap: 12px !important;
-    }
-
-    #seccionReporte .reporte-miembro,
-    .reporte .reporte-miembro {
-        display: grid !important;
-        grid-template-columns: 52px minmax(0, 1fr) 96px !important;
-        gap: 8px !important;
-        align-items: center !important;
-        width: 100% !important;
-        min-width: 0 !important;
-        box-sizing: border-box !important;
-        padding: 10px !important;
-    }
-
-    #seccionReporte .reporte-miembro .reporte-foto,
-    .reporte .reporte-miembro .reporte-foto {
-        width: 52px !important;
-        height: 52px !important;
-        max-width: 52px !important;
-        max-height: 52px !important;
-    }
-
-    #seccionReporte .reporte-miembro .reporte-info,
-    .reporte .reporte-miembro .reporte-info {
-        min-width: 0 !important;
-        overflow-wrap: anywhere !important;
-    }
-
-    #seccionReporte .reporte-miembro .reporte-estadistica,
-    .reporte .reporte-miembro .reporte-estadistica {
-        grid-column: auto !important;
-        width: 100% !important;
-        min-width: 0 !important;
-        display: block !important;
-        text-align: center !important;
-        overflow-wrap: anywhere !important;
-    }
-
-    #seccionReporte .reporte-miembro .reporte-porcentaje,
-    .reporte .reporte-miembro .reporte-porcentaje {
-        margin-bottom: 2px !important;
-    }
-}
-
-/* Teléfono horizontal: 2 columnas de tarjetas y distribución interna estable. */
-@media (max-width: 900px) and (orientation: landscape) {
-    #seccionReporte .resultado-reporte,
-    .reporte .resultado-reporte {
-        grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
         gap: 10px !important;
     }
 
-    #seccionReporte .reporte-miembro,
-    .reporte .reporte-miembro {
-        grid-template-columns: 52px minmax(0, 1fr) 96px !important;
-        gap: 8px !important;
-    }
-
-    #seccionReporte .reporte-miembro .reporte-estadistica,
-    .reporte .reporte-miembro .reporte-estadistica {
-        grid-column: auto !important;
-        display: block !important;
-        width: 100% !important;
-    }
-}
-
-/* ==========================================================
-   AJUSTE FINAL - CONTROL DE ASISTENCIA
-   Fecha y Servicio/Reunión deben tener EXACTAMENTE el mismo ancho
-   en teléfono vertical y horizontal.
-   ========================================================== */
-#seccionAsistencia .filtros-asistencia,
-#seccionControlAsistencia .filtros-asistencia,
-.asistencia .filtros-asistencia,
-.seccion-asistencia .filtros-asistencia {
-    display: grid !important;
-    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) !important;
-    width: 100% !important;
-    gap: 18px !important;
-    align-items: end !important;
-}
-
-#seccionAsistencia .campo-asistencia,
-#seccionControlAsistencia .campo-asistencia,
-.asistencia .campo-asistencia,
-.seccion-asistencia .campo-asistencia {
-    width: 100% !important;
-    min-width: 0 !important;
-    max-width: none !important;
-    box-sizing: border-box !important;
-}
-
-#seccionAsistencia .campo-asistencia input,
-#seccionAsistencia .campo-asistencia select,
-#seccionControlAsistencia .campo-asistencia input,
-#seccionControlAsistencia .campo-asistencia select,
-.asistencia .campo-asistencia input,
-.asistencia .campo-asistencia select,
-.seccion-asistencia .campo-asistencia input,
-.seccion-asistencia .campo-asistencia select {
-    display: block !important;
-    width: 100% !important;
-    min-width: 0 !important;
-    max-width: none !important;
-    box-sizing: border-box !important;
-}
-
-/* Vertical: ambos campos ocupan exactamente el mismo ancho. */
-@media (max-width: 680px) and (orientation: portrait) {
-    #seccionAsistencia .filtros-asistencia,
-    #seccionControlAsistencia .filtros-asistencia,
-    .asistencia .filtros-asistencia,
-    .seccion-asistencia .filtros-asistencia {
-        grid-template-columns: minmax(0, 1fr) !important;
-        gap: 12px !important;
-        width: 100% !important;
-    }
-}
-
-/* Horizontal: dos campos exactamente iguales, sin que Fecha crezca. */
-@media (max-width: 900px) and (orientation: landscape) {
-    #seccionAsistencia .filtros-asistencia,
-    #seccionControlAsistencia .filtros-asistencia,
-    .asistencia .filtros-asistencia,
-    .seccion-asistencia .filtros-asistencia {
-        grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) !important;
-        gap: 12px !important;
-        width: 100% !important;
-    }
-}
-
-/* ==========================================================
-   CORRECCION REAL - CAMPOS FECHA / SERVICIO
-   28/09/2026
-   ========================================================== */
-
-#seccionAsistencia .filtros-asistencia,
-#seccionControlAsistencia .filtros-asistencia,
-.asistencia .filtros-asistencia,
-.seccion-asistencia .filtros-asistencia {
-    display: grid !important;
-    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
-    width: 100% !important;
-    max-width: 100% !important;
-    box-sizing: border-box !important;
-}
-
-#seccionAsistencia .filtros-asistencia > .campo-asistencia,
-#seccionControlAsistencia .filtros-asistencia > .campo-asistencia,
-.asistencia .filtros-asistencia > .campo-asistencia,
-.seccion-asistencia .filtros-asistencia > .campo-asistencia {
-    width: 100% !important;
-    min-width: 0 !important;
-    max-width: none !important;
-    box-sizing: border-box !important;
-}
-
-#seccionAsistencia .filtros-asistencia > .campo-asistencia > input,
-#seccionAsistencia .filtros-asistencia > .campo-asistencia > select,
-#seccionControlAsistencia .filtros-asistencia > .campo-asistencia > input,
-#seccionControlAsistencia .filtros-asistencia > .campo-asistencia > select,
-.asistencia .filtros-asistencia > .campo-asistencia > input,
-.asistencia .filtros-asistencia > .campo-asistencia > select,
-.seccion-asistencia .filtros-asistencia > .campo-asistencia > input,
-.seccion-asistencia .filtros-asistencia > .campo-asistencia > select {
-    width: 100% !important;
-    min-width: 0 !important;
-    max-width: 100% !important;
-    box-sizing: border-box !important;
-}
-
-/* Telefono vertical: los dos campos ocupan todo el ancho,
-   uno debajo del otro, exactamente con la misma medida. */
-@media (max-width: 680px) and (orientation: portrait) {
-    #seccionAsistencia .filtros-asistencia,
-    #seccionControlAsistencia .filtros-asistencia,
-    .asistencia .filtros-asistencia,
-    .seccion-asistencia .filtros-asistencia {
-        grid-template-columns: minmax(0, 1fr) !important;
-        grid-auto-columns: minmax(0, 1fr) !important;
-        gap: 12px !important;
-    }
-}
-
-/* Telefono horizontal: Fecha y Servicio/Reunion son dos
-   columnas exactamente iguales. */
-@media (max-width: 900px) and (orientation: landscape) {
-    #seccionAsistencia .filtros-asistencia,
-    #seccionControlAsistencia .filtros-asistencia,
-    .asistencia .filtros-asistencia,
-    .seccion-asistencia .filtros-asistencia {
-        grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
-        grid-auto-columns: minmax(0, 1fr) !important;
-        gap: 12px !important;
-    }
-}
-
-/* ==========================================================
-   CORRECCION DEFINITIVA - CONTROL DE ASISTENCIA
-   Fecha y Servicio/Reunion: MISMO ANCHO REAL
-   ========================================================== */
-#seccionAsistencia .filtros-asistencia,
-#seccionControlAsistencia .filtros-asistencia,
-.asistencia .filtros-asistencia,
-.seccion-asistencia .filtros-asistencia {
-    display: flex !important;
-    flex-wrap: nowrap !important;
-    width: 100% !important;
-    max-width: 100% !important;
-    gap: 12px !important;
-    box-sizing: border-box !important;
-}
-
-#seccionAsistencia .filtros-asistencia > .campo-asistencia,
-#seccionControlAsistencia .filtros-asistencia > .campo-asistencia,
-.asistencia .filtros-asistencia > .campo-asistencia,
-.seccion-asistencia .filtros-asistencia > .campo-asistencia {
-    flex: 1 1 0 !important;
-    width: 0 !important;
-    min-width: 0 !important;
-    max-width: none !important;
-    box-sizing: border-box !important;
-}
-
-#seccionAsistencia .filtros-asistencia > .campo-asistencia > input,
-#seccionAsistencia .filtros-asistencia > .campo-asistencia > select,
-#seccionControlAsistencia .filtros-asistencia > .campo-asistencia > input,
-#seccionControlAsistencia .filtros-asistencia > .campo-asistencia > select,
-.asistencia .filtros-asistencia > .campo-asistencia > input,
-.asistencia .filtros-asistencia > .campo-asistencia > select,
-.seccion-asistencia .filtros-asistencia > .campo-asistencia > input,
-.seccion-asistencia .filtros-asistencia > .campo-asistencia > select {
-    display: block !important;
-    width: 100% !important;
-    min-width: 0 !important;
-    max-width: none !important;
-    box-sizing: border-box !important;
-}
-
-/* Telefono vertical: misma anchura, uno debajo del otro. */
-@media (max-width: 680px) and (orientation: portrait) {
-    #seccionAsistencia .filtros-asistencia,
-    #seccionControlAsistencia .filtros-asistencia,
-    .asistencia .filtros-asistencia,
-    .seccion-asistencia .filtros-asistencia {
-        flex-direction: column !important;
-        flex-wrap: nowrap !important;
-        gap: 12px !important;
-    }
-
-    #seccionAsistencia .filtros-asistencia > .campo-asistencia,
-    #seccionControlAsistencia .filtros-asistencia > .campo-asistencia,
-    .asistencia .filtros-asistencia > .campo-asistencia,
-    .seccion-asistencia .filtros-asistencia > .campo-asistencia {
-        flex: 0 0 auto !important;
-        width: 100% !important;
-        max-width: 100% !important;
-    }
-}
-
-/* Telefono horizontal: dos mitades EXACTAMENTE iguales.
-   Se usa max-height para que esta regla no afecte el PC. */
-@media (max-width: 1000px) and (max-height: 700px) and (orientation: landscape) {
-    #seccionAsistencia .filtros-asistencia,
-    #seccionControlAsistencia .filtros-asistencia,
-    .asistencia .filtros-asistencia,
-    .seccion-asistencia .filtros-asistencia {
-        flex-direction: row !important;
-        flex-wrap: nowrap !important;
-        gap: 12px !important;
-    }
-
-    #seccionAsistencia .filtros-asistencia > .campo-asistencia,
-    #seccionControlAsistencia .filtros-asistencia > .campo-asistencia,
-    .asistencia .filtros-asistencia > .campo-asistencia,
-    .seccion-asistencia .filtros-asistencia > .campo-asistencia {
-        flex: 1 1 0 !important;
-        width: 0 !important;
-        min-width: 0 !important;
-        max-width: none !important;
-    }
-}
-
-
-/* ==========================================================
-   V4 - CONTROL DE ASISTENCIA / CAMPOS REALMENTE IGUALES
-   Fecha y Servicio/Reunión
-   ========================================================== */
-
-#seccionAsistencia .filtros-asistencia,
-#seccionControlAsistencia .filtros-asistencia,
-.asistencia .filtros-asistencia,
-.seccion-asistencia .filtros-asistencia {
-    display: grid !important;
-    width: 100% !important;
-    max-width: 100% !important;
-    min-width: 0 !important;
-    box-sizing: border-box !important;
-    gap: 12px !important;
-}
-
-#seccionAsistencia .filtros-asistencia > .campo-asistencia,
-#seccionControlAsistencia .filtros-asistencia > .campo-asistencia,
-.asistencia .filtros-asistencia > .campo-asistencia,
-.seccion-asistencia .filtros-asistencia > .campo-asistencia {
-    width: auto !important;
-    min-width: 0 !important;
-    max-width: none !important;
-    box-sizing: border-box !important;
-}
-
-#seccionAsistencia .filtros-asistencia > .campo-asistencia > input,
-#seccionAsistencia .filtros-asistencia > .campo-asistencia > select,
-#seccionControlAsistencia .filtros-asistencia > .campo-asistencia > input,
-#seccionControlAsistencia .filtros-asistencia > .campo-asistencia > select,
-.asistencia .filtros-asistencia > .campo-asistencia > input,
-.asistencia .filtros-asistencia > .campo-asistencia > select,
-.seccion-asistencia .filtros-asistencia > .campo-asistencia > input,
-.seccion-asistencia .filtros-asistencia > .campo-asistencia > select {
-    width: 100% !important;
-    min-width: 0 !important;
-    max-width: none !important;
-    box-sizing: border-box !important;
-}
-
-/* Teléfono vertical */
-@media (orientation: portrait) and (max-width: 700px) {
-    #seccionAsistencia .filtros-asistencia,
-    #seccionControlAsistencia .filtros-asistencia,
-    .asistencia .filtros-asistencia,
-    .seccion-asistencia .filtros-asistencia {
-        grid-template-columns: minmax(0, 1fr) !important;
-    }
-}
-
-/* Teléfono horizontal: se identifica por la altura corta de la pantalla.
-   No depende del ancho CSS del dispositivo. */
-@media (orientation: landscape) and (max-height: 700px) {
-    #seccionAsistencia .filtros-asistencia,
-    #seccionControlAsistencia .filtros-asistencia,
-    .asistencia .filtros-asistencia,
-    .seccion-asistencia .filtros-asistencia {
-        grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) !important;
+    #seccionReporte .reporte-config-multi .btn-reporte {
+        grid-column: 1 !important;
     }
 }
