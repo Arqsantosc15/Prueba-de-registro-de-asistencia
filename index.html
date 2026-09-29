@@ -6,7 +6,7 @@
 
     <title>Control de Miembros y Asistencia</title>
 
-    <link rel="stylesheet" href="style.css?v=20260928-2355">
+    <link rel="stylesheet" href="style.css?v=20260929-1618">
 
     <!-- SUPABASE -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -834,36 +834,6 @@
 
 
 <script src="app.js"></script>
-
-
-<script>
-(function () {
-  function ajustarCamposAsistenciaV6() {
-    const c = document.querySelector('#seccionAsistencia .filtros-asistencia');
-    if (!c) return;
-    const vertical = window.matchMedia('(orientation: portrait)').matches;
-    c.style.setProperty('display', 'flex', 'important');
-    c.style.setProperty('flex-direction', vertical ? 'column' : 'row', 'important');
-    c.style.setProperty('flex-wrap', 'nowrap', 'important');
-    c.style.setProperty('width', '100%', 'important');
-    c.style.setProperty('box-sizing', 'border-box', 'important');
-    c.querySelectorAll(':scope > .campo-asistencia').forEach(function (campo) {
-      campo.style.setProperty('min-width', '0', 'important');
-      campo.style.setProperty('box-sizing', 'border-box', 'important');
-      if (vertical) {
-        campo.style.setProperty('flex', '0 0 auto', 'important');
-        campo.style.setProperty('width', '100%', 'important');
-      } else {
-        campo.style.setProperty('flex', '1 1 0', 'important');
-        campo.style.setProperty('width', '0', 'important');
-      }
-    });
-  }
-  window.addEventListener('DOMContentLoaded', ajustarCamposAsistenciaV6);
-  window.addEventListener('resize', ajustarCamposAsistenciaV6);
-  window.addEventListener('orientationchange', function () { setTimeout(ajustarCamposAsistenciaV6, 100); });
-})();
-</script>>
 
 </body>
 </html>
