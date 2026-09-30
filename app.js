@@ -405,119 +405,6 @@ function filtrarMiembrosPorAlcance(miembros) {
     return (miembros || []).filter(miembroPerteneceAlAlcance);
 }
 
-// ==========================================================
-// AUTOMATIZACIÓN DE MINISTERIO SEGÚN EDAD
-// Reglas: 0-9 Niños, 10-17 Adolescentes, 18-39 Jóvenes,
-// 40+ Hombre Caballeros / 40+ Mujer Damas.
-// Solo modifica los ministerios administrados por esta regla.
-// Visita, Amigos, Evangelismo, Ujieres y otros no se tocan.
-// ==========================================================
-
-const MINISTERIOS_EDAD_AUTOMATICOS = new Set([
-    "Niños",
-    "Adolescentes",
-    "Jóvenes",
-    "Caballeros",
-    "Damas"
-]);
-
-function calcularEdad(fechaNacimiento) {
-    if (!fechaNacimiento) return null;
-
-    const partes = String(fechaNacimiento).split("-").map(Number);
-
-    if (partes.length !== 3 || partes.some(Number.isNaN)) {
-        return null;
-    }
-
-    const [anio, mes, dia] = partes;
-    const hoy = new Date();
-    let edad = hoy.getFullYear() - anio;
-
-    const cumpleEsteAnio =
-        hoy.getMonth() + 1 > mes ||
-        (hoy.getMonth() + 1 === mes && hoy.getDate() >= dia);
-
-    if (!cumpleEsteAnio) {
-        edad--;
-    }
-
-    return edad >= 0 ? edad : null;
-}
-
-function obtenerMinisterioPorEdad(fechaNacimiento, sexo) {
-    const edad = calcularEdad(fechaNacimiento);
-
-    if (edad === null) return null;
-
-    if (edad <= 9) {
-        return "Niños";
-    }
-
-    if (edad <= 17) {
-        return "Adolescentes";
-    }
-
-    if (edad <= 39) {
-        return "Jóvenes";
-    }
-
-    if (sexo === "Hombre") {
-        return "Caballeros";
-    }
-
-    if (sexo === "Mujer") {
-        return "Damas";
-    }
-
-    return null;
-}
-
-async function actualizarMinisteriosPorEdad(miembros) {
-    // Solo los usuarios administrativos realizan estas actualizaciones.
-    // Así evitamos que un Líder, Miembro o Multimedia intente modificar
-    // miembros fuera de sus permisos.
-    if (!esRolAdministrativo()) return miembros || [];
-
-    const lista = Array.isArray(miembros) ? miembros : [];
-
-    for (const miembro of lista) {
-        if (!miembro || !MINISTERIOS_EDAD_AUTOMATICOS.has(miembro.ministerio)) {
-            continue;
-        }
-
-        const ministerioNuevo = obtenerMinisterioPorEdad(
-            miembro.fecha_nacimiento,
-            miembro.sexo
-        );
-
-        if (!ministerioNuevo || ministerioNuevo === miembro.ministerio) {
-            continue;
-        }
-
-        const resultado = await supabaseClient
-            .from("miembros")
-            .update({ ministerio: ministerioNuevo })
-            .eq("id", miembro.id);
-
-        if (resultado.error) {
-            console.error(
-                `No se pudo actualizar el ministerio de ${miembro.nombre}:`,
-                resultado.error
-            );
-            continue;
-        }
-
-        miembro.ministerio = ministerioNuevo;
-
-        console.log(
-            `🔄 ${miembro.nombre}: ministerio actualizado automáticamente a ${ministerioNuevo}.`
-        );
-    }
-
-    return lista;
-}
-
 function mostrarLogin() {
     if (pantallaLogin) {
         pantallaLogin.style.display = "flex";
@@ -814,6 +701,150 @@ function mostrarVistaPreviaFoto() {
     }
 }
 
+
+// ==========================================================
+// AUTOMATIZACIÓN DE MINISTERIO SEGÚN EDAD
+// ==========================================================
+// Reglas:
+// 0–9   = Niños
+// 10–17 = Adolescentes
+// 18–39 = Jóvenes
+// 40+ Hombre = Caballeros
+// 40+ Mujer  = Damas
+//
+// Estos ministerios especiales no se cambian automáticamente:
+// Visita, Amigos, Evangelismo y Ujieres.
+
+function calcularEdad(fechaNacimiento) {
+    if (!fechaNacimiento) return null;
+
+    const partes = String(fechaNacimiento).split("-");
+    if (partes.length !== 3) return null;
+
+    const anio = Number(partes[0]);
+    const mes = Number(partes[1]);
+    const dia = Number(partes[2]);
+
+    if (
+        !Number.isInteger(anio) ||
+        !Number.isInteger(mes) ||
+        !Number.isInteger(dia) ||
+        anio < 1900 ||
+        mes < 1 ||
+        mes > 12 ||
+        dia < 1 ||
+        dia > 31
+    ) {
+        return null;
+    }
+
+    const hoy = new Date();
+    let edad = hoy.getFullYear() - anio;
+
+    const mesActual = hoy.getMonth() + 1;
+    const diaActual = hoy.getDate();
+
+    if (
+        mesActual < mes ||
+        (mesActual === mes && diaActual < dia)
+    ) {
+        edad--;
+    }
+
+    return edad >= 0 ? edad : null;
+}
+
+function obtenerMinisterioAutomaticoPorEdad(fechaNacimiento, sexo) {
+    const edad = calcularEdad(fechaNacimiento);
+
+    if (edad === null) return null;
+
+    if (edad <= 9) return "Niños";
+    if (edad <= 17) return "Adolescentes";
+    if (edad <= 39) return "Jóvenes";
+
+    const sexoNormalizado = String(sexo || "")
+        .trim()
+        .toLocaleLowerCase();
+
+    if (sexoNormalizado === "hombre") return "Caballeros";
+    if (sexoNormalizado === "mujer") return "Damas";
+
+    return null;
+}
+
+function esMinisterioProtegidoDeAutomatizacion(ministerio) {
+    const valor = normalizarMinisterioParaComparacion(ministerio);
+
+    return [
+        "visita",
+        "amigos",
+        "evangelismo",
+        "ujieres"
+    ].includes(valor);
+}
+
+function puedeAplicarAutomatizacionDeEdad() {
+    // Solo los roles que actualmente administran/editan miembros
+    // aplican esta automatización desde el navegador.
+    return esRolAdministrativo() || esRolMultimedia();
+}
+
+async function sincronizarMinisterioPorEdad(miembro) {
+    if (!puedeAplicarAutomatizacionDeEdad()) return false;
+    if (!miembro || miembro.activo !== true) return false;
+
+    if (esMinisterioProtegidoDeAutomatizacion(miembro.ministerio)) {
+        return false;
+    }
+
+    const ministerioAutomatico =
+        obtenerMinisterioAutomaticoPorEdad(
+            miembro.fecha_nacimiento,
+            miembro.sexo
+        );
+
+    if (!ministerioAutomatico) return false;
+
+    const ministerioActual = String(miembro.ministerio || "").trim();
+
+    if (
+        normalizarMinisterioParaComparacion(ministerioActual) ===
+        normalizarMinisterioParaComparacion(ministerioAutomatico)
+    ) {
+        return false;
+    }
+
+    const resultado = await supabaseClient
+        .from("miembros")
+        .update({ ministerio: ministerioAutomatico })
+        .eq("id", miembro.id);
+
+    if (resultado.error) throw resultado.error;
+
+    console.log(
+        "🔄 Ministerio actualizado automáticamente:",
+        miembro.nombre,
+        "→",
+        ministerioAutomatico
+    );
+
+    return true;
+}
+
+async function sincronizarMinisteriosPorEdad(miembros) {
+    if (!puedeAplicarAutomatizacionDeEdad()) return false;
+
+    let huboCambios = false;
+
+    for (const miembro of miembros || []) {
+        const cambio = await sincronizarMinisterioPorEdad(miembro);
+        if (cambio) huboCambios = true;
+    }
+
+    return huboCambios;
+}
+
 async function guardarMiembro(event) {
     event.preventDefault();
 
@@ -847,9 +878,28 @@ async function guardarMiembro(event) {
             ? sexoElemento.value || null
             : null;
 
-        const ministerio = esRolLider()
+        let ministerio = esRolLider()
             ? (ministerioUsuarioActual || "")
             : (ministerioElemento ? ministerioElemento.value : "");
+
+        const ministerioAutomatico =
+            puedeAplicarAutomatizacionDeEdad()
+                ? obtenerMinisterioAutomaticoPorEdad(
+                    fechaNacimiento,
+                    sexo
+                )
+                : null;
+
+        if (
+            ministerioAutomatico &&
+            !esMinisterioProtegidoDeAutomatizacion(ministerio)
+        ) {
+            ministerio = ministerioAutomatico;
+
+            if (ministerioElemento && !esRolLider()) {
+                ministerioElemento.value = ministerioAutomatico;
+            }
+        }
 
         const iglesiaVisitaElemento = document.getElementById("iglesiaVisita");
         const iglesia_origen = ministerio === "Visita"
@@ -1002,11 +1052,27 @@ async function cargarMiembros() {
 
         const miembrosCargados = resultado.data || [];
 
-        // Primero se revisa la edad y se actualizan los ministerios que
-        // corresponden. Después se aplica el alcance del usuario.
-        await actualizarMinisteriosPorEdad(miembrosCargados);
+        const huboCambiosPorEdad =
+            await sincronizarMinisteriosPorEdad(miembrosCargados);
 
-        miembrosPermitidosActuales = filtrarMiembrosPorAlcance(miembrosCargados);
+        if (huboCambiosPorEdad) {
+            const resultadoActualizado = await supabaseClient
+                .from("miembros")
+                .select("*")
+                .eq("activo", true)
+                .order("nombre", { ascending: true });
+
+            if (resultadoActualizado.error) {
+                throw resultadoActualizado.error;
+            }
+
+            miembrosPermitidosActuales =
+                filtrarMiembrosPorAlcance(resultadoActualizado.data || []);
+        } else {
+            miembrosPermitidosActuales =
+                filtrarMiembrosPorAlcance(miembrosCargados);
+        }
+
         mostrarMiembros(miembrosPermitidosActuales);
     } catch (error) {
         console.error("Error cargando miembros:", error);
@@ -1425,9 +1491,29 @@ async function guardarCambiosMiembro(event) {
         ? editarSexo.value || null
         : null;
 
-    const ministerio = editarMinisterio
+    let ministerio = editarMinisterio
         ? editarMinisterio.value
         : "";
+
+    const ministerioAutomatico =
+        puedeAplicarAutomatizacionDeEdad()
+            ? obtenerMinisterioAutomaticoPorEdad(
+                fechaNacimiento,
+                sexo
+            )
+            : null;
+
+    if (
+        ministerioAutomatico &&
+        !esMinisterioProtegidoDeAutomatizacion(ministerio)
+    ) {
+        ministerio = ministerioAutomatico;
+
+        if (editarMinisterio) {
+            editarMinisterio.value = ministerioAutomatico;
+        }
+    }
+
     const editarIglesiaVisita = document.getElementById("editarIglesiaVisita");
     const iglesia_origen = ministerio === "Visita"
         ? (editarIglesiaVisita ? editarIglesiaVisita.value.trim() : "")
@@ -1507,7 +1593,12 @@ async function guardarCambiosMiembro(event) {
             throw resultado.error;
         }
 
-        alert("✅ Miembro actualizado correctamente.");
+        alert(
+            "✅ Miembro actualizado correctamente.\n\n" +
+            "Fecha de nacimiento: " + (fechaNacimiento || "No registrada") + "\n" +
+            "Sexo: " + (sexo || "No registrado") + "\n" +
+            "Ministerio: " + ministerio
+        );
 
         cerrarModalEditar();
         await cargarMiembros();
