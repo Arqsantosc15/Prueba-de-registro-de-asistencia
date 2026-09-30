@@ -360,16 +360,40 @@ function configurarCamposVisita() {
     }
 }
 
+function normalizarMinisterioParaComparacion(valor) {
+    const ministerio = String(valor || "")
+        .trim()
+        .toLocaleLowerCase();
+
+    // Unificar las variantes actuales de Adolescentes
+    if (
+        ministerio === "adolecente" ||
+        ministerio === "adolecentes" ||
+        ministerio === "adolescente" ||
+        ministerio === "adolescentes"
+    ) {
+        return "adolescentes";
+    }
+
+    return ministerio;
+}
+
 function miembroPerteneceAlAlcance(miembro) {
     if (!miembro || miembro.activo !== true) return false;
 
     if (esRolMiembro()) {
-        return miembroIdUsuarioActual !== null && Number(miembro.id) === Number(miembroIdUsuarioActual);
+        return miembroIdUsuarioActual !== null &&
+            Number(miembro.id) === Number(miembroIdUsuarioActual);
     }
 
     if (esRolLider()) {
-        return String(miembro.ministerio || "").trim().toLocaleLowerCase() ===
-            String(ministerioUsuarioActual || "").trim().toLocaleLowerCase();
+        const ministerioMiembro =
+            normalizarMinisterioParaComparacion(miembro.ministerio);
+
+        const ministerioLider =
+            normalizarMinisterioParaComparacion(ministerioUsuarioActual);
+
+        return ministerioMiembro === ministerioLider;
     }
 
     return true;
@@ -689,6 +713,8 @@ async function guardarMiembro(event) {
         const nombreElemento = document.getElementById("nombre");
         const telefonoElemento = document.getElementById("telefono");
         const ministerioElemento = document.getElementById("ministerio");
+        const fechaNacimientoElemento = document.getElementById("fecha_nacimiento");
+        const sexoElemento = document.getElementById("sexo");
 
         const nombre = nombreElemento
             ? nombreElemento.value.trim()
@@ -697,6 +723,14 @@ async function guardarMiembro(event) {
         const telefono = telefonoElemento
             ? telefonoElemento.value.trim()
             : "";
+
+        const fechaNacimiento = fechaNacimientoElemento
+            ? fechaNacimientoElemento.value || null
+            : null;
+
+        const sexo = sexoElemento
+            ? sexoElemento.value || null
+            : null;
 
         const ministerio = esRolLider()
             ? (ministerioUsuarioActual || "")
@@ -750,6 +784,8 @@ async function guardarMiembro(event) {
             nombre,
             telefono,
             ministerio,
+            fecha_nacimiento: fechaNacimiento,
+            sexo: sexo,
             iglesia_origen,
             foto_url: fotoUrl,
             lunes: diasSeleccionados.includes("lunes"),
