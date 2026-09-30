@@ -2736,3 +2736,371 @@ main {
         width: 100% !important;
     }
 }
+
+
+/* ==========================================================
+   DETALLES DEL MIEMBRO
+   ========================================================== */
+.btn-detalles {
+    border: 1px solid #c7d1da;
+    background: #fff;
+    color: #1f527f;
+    border-radius: 4px;
+    padding: 4px 7px;
+    font-size: 11px;
+    cursor: pointer;
+}
+
+.btn-detalles:hover {
+    background: #edf4f9;
+}
+
+.miembro-acciones {
+    gap: 6px;
+    flex-wrap: wrap;
+}
+
+.modal-detalles-contenido {
+    max-height: calc(100vh - 60px);
+    overflow-y: auto;
+}
+
+.detalles-cabecera {
+    display: grid;
+    grid-template-columns: 86px minmax(0, 1fr);
+    gap: 16px;
+    align-items: center;
+    padding-bottom: 16px;
+    border-bottom: 1px solid #dce4ea;
+}
+
+.detalles-foto {
+    width: 86px;
+    height: 86px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid #1f527f;
+    background: #edf2f6;
+}
+
+.detalles-nombre {
+    margin: 0 0 5px;
+    color: #1f527f;
+    font-size: 20px;
+}
+
+.detalles-subtitulo {
+    margin: 0;
+    color: #667987;
+    font-size: 13px;
+}
+
+.detalles-datos {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+    margin-top: 16px;
+}
+
+.detalle-dato {
+    padding: 10px 12px;
+    background: #f7f9fb;
+    border: 1px solid #dce4ea;
+    border-radius: 7px;
+}
+
+.detalle-dato strong {
+    display: block;
+    margin-bottom: 3px;
+    color: #4b6170;
+    font-size: 11px;
+}
+
+.detalle-dato span {
+    color: #1f3342;
+    font-size: 13px;
+    word-break: break-word;
+}
+
+.detalles-seccion {
+    margin-top: 18px;
+}
+
+.detalles-seccion h3 {
+    margin: 0 0 10px;
+    color: #1f527f;
+    font-size: 15px;
+}
+
+.detalles-asistencia-grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 8px;
+}
+
+.detalle-periodo {
+    padding: 10px;
+    background: #f7f9fb;
+    border: 1px solid #dce4ea;
+    border-radius: 7px;
+    text-align: center;
+}
+
+.detalle-periodo .numero {
+    display: block;
+    color: #1f527f;
+    font-size: 21px;
+    font-weight: 700;
+}
+
+.detalle-periodo .texto {
+    color: #667987;
+    font-size: 11px;
+}
+
+.detalles-registros {
+    margin: 10px 0 0;
+    padding-left: 18px;
+    color: #425767;
+    font-size: 12px;
+}
+
+.detalles-registros li {
+    margin: 4px 0;
+}
+
+.detalles-privado {
+    border-left: 4px solid #1f527f;
+    background: #f7f9fb;
+    padding: 12px 14px;
+    border-radius: 6px;
+    color: #273e4e;
+    white-space: pre-wrap;
+}
+
+@media (max-width: 700px) {
+    .detalles-cabecera {
+        grid-template-columns: 64px minmax(0, 1fr);
+    }
+    .detalles-foto {
+        width: 64px;
+        height: 64px;
+    }
+    .detalles-nombre {
+        font-size: 17px;
+    }
+    .detalles-datos {
+        grid-template-columns: 1fr;
+    }
+    .detalles-asistencia-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+
+/* ==========================================
+   PASO 8B — ALERTAS DE ASISTENCIA
+========================================== */
+.alertas-asistencia {
+    width: 100%;
+    margin: 24px 0;
+}
+.alertas-asistencia-contenedor {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 20px;
+    border-radius: 12px;
+    background: #ffffff;
+    border: 1px solid #d9e1e8;
+    box-shadow: 0 3px 12px rgba(0, 0, 0, 0.06);
+}
+.alertas-asistencia-titulo {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    margin-bottom: 16px;
+}
+.alertas-asistencia-titulo h2 { margin: 0; }
+.subtitulo-alertas { margin: 5px 0 0; }
+.btn-alertas {
+    border: 0;
+    border-radius: 8px;
+    padding: 10px 14px;
+    cursor: pointer;
+    font-weight: 600;
+}
+.btn-alertas:disabled { opacity: 0.65; cursor: wait; }
+.resumen-alertas {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 14px;
+    font-weight: 600;
+}
+.alerta-contador {
+    min-width: 30px;
+    height: 30px;
+    padding: 0 8px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 999px;
+    background: #eef2f5;
+}
+.lista-alertas { display: grid; gap: 10px; }
+.alerta-card {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 14px;
+    border-radius: 10px;
+    border: 1px solid #e1e6eb;
+}
+.alerta-roja { border-left: 5px solid #b42318; }
+.alerta-naranja { border-left: 5px solid #b54708; }
+.alerta-icono { font-size: 22px; line-height: 1; }
+.alerta-contenido { display: flex; flex-direction: column; gap: 4px; }
+.alerta-contenido strong { font-size: 15px; }
+.alerta-contenido small { opacity: 0.8; }
+.alerta-sin-datos {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    padding: 14px;
+    border-radius: 10px;
+    border: 1px solid #d9e1e8;
+}
+@media (max-width: 700px) {
+    .alertas-asistencia-titulo { align-items: stretch; flex-direction: column; }
+    .btn-alertas { width: 100%; }
+}
+
+/* ==========================================================
+   PASO 8B — ALERTAS: MISMO ANCHO QUE ASISTENCIA Y REPORTE
+   Responsive para teléfono/tableta vertical y horizontal.
+   No modifica la visualización de PC fuera de este bloque.
+   ========================================================== */
+
+#seccionAlertasAsistencia,
+.alertas-asistencia {
+    grid-column: 1 / -1 !important;
+    width: 100% !important;
+    max-width: none !important;
+    min-width: 0 !important;
+    margin: 0 !important;
+    box-sizing: border-box !important;
+}
+
+#seccionAlertasAsistencia .alertas-asistencia-contenedor,
+.alertas-asistencia .alertas-asistencia-contenedor {
+    width: 100% !important;
+    max-width: none !important;
+    min-width: 0 !important;
+    box-sizing: border-box !important;
+}
+
+#seccionAlertasAsistencia .alertas-asistencia-titulo,
+.alertas-asistencia .alertas-asistencia-titulo {
+    min-width: 0;
+}
+
+#seccionAlertasAsistencia .lista-alertas,
+.alertas-asistencia .lista-alertas {
+    width: 100% !important;
+    min-width: 0 !important;
+    box-sizing: border-box !important;
+}
+
+#seccionAlertasAsistencia .alerta-card,
+.alertas-asistencia .alerta-card {
+    min-width: 0 !important;
+    box-sizing: border-box !important;
+}
+
+#seccionAlertasAsistencia .alerta-contenido,
+.alertas-asistencia .alerta-contenido {
+    min-width: 0 !important;
+    overflow-wrap: anywhere;
+    word-break: break-word;
+}
+
+/* Tablet y teléfono: una sola columna principal. */
+@media screen and (max-width: 900px) {
+    #seccionAlertasAsistencia,
+    .alertas-asistencia {
+        grid-column: 1 !important;
+    }
+
+    #seccionAlertasAsistencia .alertas-asistencia-contenedor,
+    .alertas-asistencia .alertas-asistencia-contenedor {
+        padding: 18px !important;
+    }
+}
+
+/* Teléfono/tableta en VERTICAL: todo apilado y legible. */
+@media screen and (max-width: 900px) and (orientation: portrait) {
+    #seccionAlertasAsistencia .alertas-asistencia-titulo,
+    .alertas-asistencia .alertas-asistencia-titulo {
+        flex-direction: column !important;
+        align-items: stretch !important;
+    }
+
+    #seccionAlertasAsistencia .btn-alertas,
+    .alertas-asistencia .btn-alertas {
+        width: 100% !important;
+    }
+
+    #seccionAlertasAsistencia .lista-alertas,
+    .alertas-asistencia .lista-alertas {
+        grid-template-columns: 1fr !important;
+    }
+
+    #seccionAlertasAsistencia .alerta-card,
+    .alertas-asistencia .alerta-card {
+        width: 100% !important;
+    }
+}
+
+/* Teléfono/tableta en HORIZONTAL: se aprovecha el ancho disponible. */
+@media screen and (max-width: 900px) and (orientation: landscape) {
+    #seccionAlertasAsistencia .alertas-asistencia-titulo,
+    .alertas-asistencia .alertas-asistencia-titulo {
+        flex-direction: row !important;
+        align-items: center !important;
+    }
+
+    #seccionAlertasAsistencia .btn-alertas,
+    .alertas-asistencia .btn-alertas {
+        width: auto !important;
+        flex: 0 0 auto !important;
+    }
+
+    #seccionAlertasAsistencia .lista-alertas,
+    .alertas-asistencia .lista-alertas {
+        grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    }
+
+    #seccionAlertasAsistencia .alerta-card,
+    .alertas-asistencia .alerta-card {
+        width: 100% !important;
+    }
+}
+
+/* Teléfonos muy estrechos: mantener una sola columna. */
+@media screen and (max-width: 680px) {
+    #seccionAlertasAsistencia .alertas-asistencia-contenedor,
+    .alertas-asistencia .alertas-asistencia-contenedor {
+        padding: 14px !important;
+    }
+
+    #seccionAlertasAsistencia .alertas-asistencia-titulo,
+    .alertas-asistencia .alertas-asistencia-titulo {
+        gap: 10px !important;
+    }
+
+    #seccionAlertasAsistencia .lista-alertas,
+    .alertas-asistencia .lista-alertas {
+        grid-template-columns: 1fr !important;
+    }
+}
