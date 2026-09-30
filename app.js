@@ -405,6 +405,119 @@ function filtrarMiembrosPorAlcance(miembros) {
     return (miembros || []).filter(miembroPerteneceAlAlcance);
 }
 
+// ==========================================================
+// AUTOMATIZACIÓN DE MINISTERIO SEGÚN EDAD
+// Reglas: 0-9 Niños, 10-17 Adolescentes, 18-39 Jóvenes,
+// 40+ Hombre Caballeros / 40+ Mujer Damas.
+// Solo modifica los ministerios administrados por esta regla.
+// Visita, Amigos, Evangelismo, Ujieres y otros no se tocan.
+// ==========================================================
+
+const MINISTERIOS_EDAD_AUTOMATICOS = new Set([
+    "Niños",
+    "Adolescentes",
+    "Jóvenes",
+    "Caballeros",
+    "Damas"
+]);
+
+function calcularEdad(fechaNacimiento) {
+    if (!fechaNacimiento) return null;
+
+    const partes = String(fechaNacimiento).split("-").map(Number);
+
+    if (partes.length !== 3 || partes.some(Number.isNaN)) {
+        return null;
+    }
+
+    const [anio, mes, dia] = partes;
+    const hoy = new Date();
+    let edad = hoy.getFullYear() - anio;
+
+    const cumpleEsteAnio =
+        hoy.getMonth() + 1 > mes ||
+        (hoy.getMonth() + 1 === mes && hoy.getDate() >= dia);
+
+    if (!cumpleEsteAnio) {
+        edad--;
+    }
+
+    return edad >= 0 ? edad : null;
+}
+
+function obtenerMinisterioPorEdad(fechaNacimiento, sexo) {
+    const edad = calcularEdad(fechaNacimiento);
+
+    if (edad === null) return null;
+
+    if (edad <= 9) {
+        return "Niños";
+    }
+
+    if (edad <= 17) {
+        return "Adolescentes";
+    }
+
+    if (edad <= 39) {
+        return "Jóvenes";
+    }
+
+    if (sexo === "Hombre") {
+        return "Caballeros";
+    }
+
+    if (sexo === "Mujer") {
+        return "Damas";
+    }
+
+    return null;
+}
+
+async function actualizarMinisteriosPorEdad(miembros) {
+    // Solo los usuarios administrativos realizan estas actualizaciones.
+    // Así evitamos que un Líder, Miembro o Multimedia intente modificar
+    // miembros fuera de sus permisos.
+    if (!esRolAdministrativo()) return miembros || [];
+
+    const lista = Array.isArray(miembros) ? miembros : [];
+
+    for (const miembro of lista) {
+        if (!miembro || !MINISTERIOS_EDAD_AUTOMATICOS.has(miembro.ministerio)) {
+            continue;
+        }
+
+        const ministerioNuevo = obtenerMinisterioPorEdad(
+            miembro.fecha_nacimiento,
+            miembro.sexo
+        );
+
+        if (!ministerioNuevo || ministerioNuevo === miembro.ministerio) {
+            continue;
+        }
+
+        const resultado = await supabaseClient
+            .from("miembros")
+            .update({ ministerio: ministerioNuevo })
+            .eq("id", miembro.id);
+
+        if (resultado.error) {
+            console.error(
+                `No se pudo actualizar el ministerio de ${miembro.nombre}:`,
+                resultado.error
+            );
+            continue;
+        }
+
+        miembro.ministerio = ministerioNuevo;
+
+        console.log(
+            `🔄 ${miembro.nombre}: ministerio actualizado automáticamente a ${ministerioNuevo}.`
+        );
+    }
+
+    return lista;
+}
+
 function mostrarLogin() {
     if (pantallaLogin) {
         pantallaLogin.style.display = "flex";
@@ -887,7 +1000,13 @@ async function cargarMiembros() {
 
         if (resultado.error) throw resultado.error;
 
-        miembrosPermitidosActuales = filtrarMiembrosPorAlcance(resultado.data || []);
+        const miembrosCargados = resultado.data || [];
+
+        // Primero se revisa la edad y se actualizan los ministerios que
+        // corresponden. Después se aplica el alcance del usuario.
+        await actualizarMinisteriosPorEdad(miembrosCargados);
+
+        miembrosPermitidosActuales = filtrarMiembrosPorAlcance(miembrosCargados);
         mostrarMiembros(miembrosPermitidosActuales);
     } catch (error) {
         console.error("Error cargando miembros:", error);
