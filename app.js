@@ -72,6 +72,8 @@ let btnGuardarEdicion;
 let editarId;
 let editarNombre;
 let editarTelefono;
+let editarFechaNacimiento;
+let editarSexo;
 let editarMinisterio;
 let editarFoto;
 let editarPreview;
@@ -1116,6 +1118,8 @@ function inicializarModalEditar() {
     editarId = document.getElementById("editarId");
     editarNombre = document.getElementById("editarNombre");
     editarTelefono = document.getElementById("editarTelefono");
+    editarFechaNacimiento = document.getElementById("editarFechaNacimiento");
+    editarSexo = document.getElementById("editarSexo");
     editarMinisterio = document.getElementById("editarMinisterio");
     editarFoto = document.getElementById("editarFoto");
     editarPreview = document.getElementById("editarPreview");
@@ -1177,6 +1181,14 @@ async function abrirModalEditar(id) {
         if (editarId) editarId.value = miembro.id;
         if (editarNombre) editarNombre.value = miembro.nombre || "";
         if (editarTelefono) editarTelefono.value = miembro.telefono || "";
+
+        if (editarFechaNacimiento) {
+            editarFechaNacimiento.value = miembro.fecha_nacimiento || "";
+        } 
+
+        if (editarSexo) {
+            editarSexo.value = miembro.sexo || "";
+        }
 
         const ministerioOriginal =
             document.getElementById("ministerio");
@@ -1286,6 +1298,14 @@ async function guardarCambiosMiembro(event) {
     const telefono = editarTelefono
         ? editarTelefono.value.trim()
         : "";
+    const fechaNacimiento = editarFechaNacimiento
+        ? editarFechaNacimiento.value || null
+        : null;
+
+    const sexo = editarSexo
+        ? editarSexo.value || null
+        : null;
+
     const ministerio = editarMinisterio
         ? editarMinisterio.value
         : "";
@@ -1342,6 +1362,8 @@ async function guardarCambiosMiembro(event) {
             nombre,
             telefono,
             ministerio,
+            fecha_nacimiento: fechaNacimiento,
+            sexo: sexo,
             iglesia_origen,
             lunes: diasSeleccionados.includes("lunes"),
             martes: diasSeleccionados.includes("martes"),
