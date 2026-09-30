@@ -169,6 +169,16 @@
                 >
             </div>
 
+            <div class="campo">
+                <label for="domicilio">Dónde vive</label>
+                <input
+                    type="text"
+                    id="domicilio"
+                    placeholder="Ej. Santo Domingo Oeste"
+                >
+                <small>Opcional</small>
+            </div>
+
 <div class="campo">
     <label for="fecha_nacimiento">Fecha de nacimiento</label>
 
@@ -514,6 +524,50 @@
     </div>
 
 </section>
+
+<!-- ==========================================
+     ALERTAS DE ASISTENCIA — ADMINISTRADOR
+========================================== -->
+<section class="alertas-asistencia" id="seccionAlertasAsistencia">
+    <div class="alertas-asistencia-contenedor">
+        <div class="alertas-asistencia-titulo">
+            <div>
+                <h2>🔔 Alertas de asistencia</h2>
+                <p class="subtitulo-alertas">Detecta ausencias según los días habituales del miembro.</p>
+            </div>
+            <button type="button" id="btnActualizarAlertasAsistencia" class="btn-alertas">
+                🔄 Actualizar
+            </button>
+        </div>
+
+        <div id="resumenAlertasAsistencia" class="resumen-alertas">
+            <span class="alerta-contador">0</span>
+            <span>Alertas activas</span>
+        </div>
+
+        <div id="listaAlertasAsistencia" class="lista-alertas">
+            <p class="mensaje">Cargando alertas...</p>
+        </div>
+    </div>
+</section>
+
+<!-- ==========================================
+     MODAL DETALLES DEL MIEMBRO
+========================================== -->
+
+<div id="modalDetalles" class="modal">
+    <div class="modal-contenido modal-detalles-contenido">
+        <div class="modal-header">
+            <h2>👁️ Detalles del miembro</h2>
+            <button type="button" id="btnCerrarDetalles" class="btn-cerrar">✕</button>
+        </div>
+
+        <div id="contenidoDetallesMiembro">
+            <p class="mensaje">Cargando detalles...</p>
+        </div>
+    </div>
+</div>
+
 <!-- ==========================================
      MODAL EDITAR MIEMBRO
 ========================================== -->
@@ -569,6 +623,22 @@
                     id="editarTelefono"
                     placeholder="Ej. 809-555-1234"
                 >
+
+            </div>
+
+            <div class="campo">
+
+                <label for="editarDomicilio">
+                    Dónde vive
+                </label>
+
+                <input
+                    type="text"
+                    id="editarDomicilio"
+                    placeholder="Ej. Santo Domingo Oeste"
+                >
+
+                <small>Opcional</small>
 
             </div>
 
