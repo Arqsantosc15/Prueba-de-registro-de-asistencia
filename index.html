@@ -6,7 +6,7 @@
 
     <title>Control de Miembros y Asistencia</title>
 
-    <link rel="stylesheet" href="style.css?v=20260929-1636">
+    <link rel="stylesheet" href="style.css">
 
     <!-- SUPABASE -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -168,7 +168,24 @@
                     placeholder="Ej. 809-555-1234"
                 >
             </div>
+<div class="campo">
+    <label for="fecha_nacimiento">Fecha de nacimiento</label>
 
+    <input
+        type="date"
+        id="fecha_nacimiento"
+    >
+</div>
+
+<div class="campo">
+    <label for="sexo">Sexo</label>
+
+    <select id="sexo">
+        <option value="">Seleccione</option>
+        <option value="Hombre">Hombre</option>
+        <option value="Mujer">Mujer</option>
+    </select>
+</div>
 
             <div class="campo">
                 <label for="ministerio">Ministerio</label>
