@@ -3147,17 +3147,17 @@ main {
 
 
 /* ==========================================================
-   AJUSTE PRUEBA - CONTROLES DE FECHA / SERVICIO MÁS COMPACTOS
-   La caja general sigue ocupando el mismo espacio, pero los
-   controles visibles toman un ancho parecido al de un campo
-   compacto de formulario.
+   AJUSTE 9B - CAMPOS COMPACTOS SIN HACERLOS EXCESIVAMENTE PEQUEÑOS
+   PC: ancho moderado.
+   Teléfono/tableta: ancho compacto propio, sin volver a 100%.
+   La sección general conserva su ancho original.
    ========================================================== */
 
 #seccionControlAsistencia .filtros-asistencia .campo-asistencia,
 #seccionAsistencia .filtros-asistencia .campo-asistencia,
 .asistencia .filtros-asistencia .campo-asistencia,
 .seccion-asistencia .filtros-asistencia .campo-asistencia {
-    width: 260px !important;
+    width: 340px !important;
     max-width: 100% !important;
     justify-self: start !important;
 }
@@ -3176,7 +3176,7 @@ main {
 
 #seccionReporte .reporte-config-multi .campo,
 .reporte .reporte-config-multi .campo {
-    width: 260px !important;
+    width: 340px !important;
     max-width: 100% !important;
     justify-self: start !important;
 }
@@ -3189,14 +3189,65 @@ main {
     box-sizing: border-box !important;
 }
 
-@media (max-width: 680px) {
+/* Tableta y teléfono: réduire réellement les champs sans toucher
+   au reste de la largeur du panneau. */
+@media screen and (max-width: 900px) {
     #seccionControlAsistencia .filtros-asistencia .campo-asistencia,
     #seccionAsistencia .filtros-asistencia .campo-asistencia,
     .asistencia .filtros-asistencia .campo-asistencia,
     .seccion-asistencia .filtros-asistencia .campo-asistencia,
     #seccionReporte .reporte-config-multi .campo,
     .reporte .reporte-config-multi .campo {
-        width: 100% !important;
+        width: 300px !important;
         max-width: 100% !important;
     }
+}
+
+@media screen and (max-width: 680px) {
+    #seccionControlAsistencia .filtros-asistencia .campo-asistencia,
+    #seccionAsistencia .filtros-asistencia .campo-asistencia,
+    .asistencia .filtros-asistencia .campo-asistencia,
+    .seccion-asistencia .filtros-asistencia .campo-asistencia,
+    #seccionReporte .reporte-config-multi .campo,
+    .reporte .reporte-config-multi .campo {
+        width: 280px !important;
+        max-width: calc(100vw - 48px) !important;
+        justify-self: start !important;
+    }
+}
+
+/* ==========================================================
+   ALERTAS - RESTAURAR BARRA DE DESPLAZAMIENTO INTERNA
+   ========================================================== */
+#seccionAlertasAsistencia .lista-alertas,
+.alertas-asistencia .lista-alertas {
+    max-height: 360px !important;
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
+    padding-right: 8px !important;
+    scrollbar-gutter: stable !important;
+    scrollbar-width: auto !important;
+    scrollbar-color: #1f527f #e9eef3 !important;
+}
+
+#seccionAlertasAsistencia .lista-alertas::-webkit-scrollbar,
+.alertas-asistencia .lista-alertas::-webkit-scrollbar {
+    width: 10px;
+}
+
+#seccionAlertasAsistencia .lista-alertas::-webkit-scrollbar-track,
+.alertas-asistencia .lista-alertas::-webkit-scrollbar-track {
+    background: #e9eef3;
+    border-radius: 10px;
+}
+
+#seccionAlertasAsistencia .lista-alertas::-webkit-scrollbar-thumb,
+.alertas-asistencia .lista-alertas::-webkit-scrollbar-thumb {
+    background: #1f527f;
+    border-radius: 10px;
+}
+
+#seccionAlertasAsistencia .lista-alertas::-webkit-scrollbar-thumb:hover,
+.alertas-asistencia .lista-alertas::-webkit-scrollbar-thumb:hover {
+    background: #163a5c;
 }
