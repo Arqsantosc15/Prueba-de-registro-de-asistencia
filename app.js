@@ -2385,17 +2385,27 @@ function obtenerDiasHabitualesMiembro(miembro) {
     return dias.filter(dia => miembro && miembro[dia] === true);
 }
 
-function obtenerSemanasConsecutivasSinAsistir(miembro, registrosMiembro, fechaHoyDate) {
+function construirDiasConReunion(registrosTotales) {
+    const dias = new Set();
+    (registrosTotales || []).forEach(registro => {
+        if (!registro.fecha) return;
+        dias.add(registro.fecha);
+    });
+    return dias;
+}
+
+function obtenerSemanasConsecutivasSinAsistir(miembro, registrosMiembro, registrosTotales, fechaHoyDate) {
     const diasHabituales = obtenerDiasHabitualesMiembro(miembro);
     if (diasHabituales.length === 0) return [];
 
-    const porFecha = new Map();
+    const porFechaMiembro = new Map();
     (registrosMiembro || []).forEach(registro => {
         if (!registro.fecha) return;
-        if (!porFecha.has(registro.fecha)) porFecha.set(registro.fecha, []);
-        porFecha.get(registro.fecha).push(registro);
+        if (!porFechaMiembro.has(registro.fecha)) porFechaMiembro.set(registro.fecha, []);
+        porFechaMiembro.get(registro.fecha).push(registro);
     });
 
+    const fechasConReunion = construirDiasConReunion(registrosTotales);
     const semanas = [];
     const fechaInicioVentana = new Date(fechaHoyDate);
     fechaInicioVentana.setHours(12, 0, 0, 0);
@@ -2418,10 +2428,14 @@ function obtenerSemanasConsecutivasSinAsistir(miembro, registrosMiembro, fechaHo
             if (!diasHabituales.includes(nombreDia)) continue;
 
             const fechaISO = fechaISODesdeDate(dia);
-            const registrosDia = porFecha.get(fechaISO) || [];
-            if (registrosDia.length === 0) continue;
+            // El día cuenta como jornada realizada si existe al menos
+            // un registro de asistencia en esa fecha, aunque el miembro
+            // no tenga una fila propia. Esto permite detectar un "No"
+            // implícito cuando el control fue guardado para los miembros.
+            if (!fechasConReunion.has(fechaISO)) continue;
 
             tieneDiaEsperadoRegistrado = true;
+            const registrosDia = porFechaMiembro.get(fechaISO) || [];
             if (registrosDia.some(registro => registro.asistio === true)) {
                 asistioEnLaSemana = true;
             }
@@ -2452,26 +2466,27 @@ function obtenerSemanasConsecutivasSinAsistir(miembro, registrosMiembro, fechaHo
     return alertas;
 }
 
-function obtenerAusenciasHabitualesDelMes(miembro, registrosMiembro, fechaHoyDate) {
+function obtenerAusenciasHabitualesDelMes(miembro, registrosMiembro, registrosTotales, fechaHoyDate) {
     const diasHabituales = obtenerDiasHabitualesMiembro(miembro);
     if (diasHabituales.length === 0) return 0;
 
     const inicioMes = obtenerFechaInicioMes(fechaHoyDate);
     const finMes = fechaISODesdeDate(fechaHoyDate);
-    const porFecha = new Map();
+    const fechasConReunion = construirDiasConReunion(registrosTotales);
+    const asistioPorFecha = new Set();
 
     (registrosMiembro || []).forEach(registro => {
         if (!registro.fecha || registro.fecha < inicioMes || registro.fecha > finMes) return;
-        if (!porFecha.has(registro.fecha)) porFecha.set(registro.fecha, []);
-        porFecha.get(registro.fecha).push(registro);
+        if (registro.asistio === true) asistioPorFecha.add(registro.fecha);
     });
 
     let ausencias = 0;
-    porFecha.forEach((registrosDia, fecha) => {
+    for (const fecha of fechasConReunion) {
+        if (fecha < inicioMes || fecha > finMes) continue;
         const nombreDia = obtenerDiaDeFecha(fecha);
-        if (!diasHabituales.includes(nombreDia)) return;
-        if (!registrosDia.some(registro => registro.asistio === true)) ausencias++;
-    });
+        if (!diasHabituales.includes(nombreDia)) continue;
+        if (!asistioPorFecha.has(fecha)) ausencias++;
+    }
 
     return ausencias;
 }
@@ -2520,14 +2535,14 @@ async function cargarAlertasAsistencia() {
 
             // El control de 2 semanas consecutivas se activa después de más de 3 asistencias registradas.
             if (asistenciasReales > 3) {
-                const semanas = obtenerSemanasConsecutivasSinAsistir(miembro, registros, hoy);
+                const semanas = obtenerSemanasConsecutivasSinAsistir(miembro, registros, resultadoAsistencias.data || [], hoy);
                 if (semanas.length) {
                     const ultima = semanas[semanas.length - 1];
                     alertas.push({ tipo: "semanas", miembro, semanas: ultima });
                 }
             }
 
-            const ausenciasMes = obtenerAusenciasHabitualesDelMes(miembro, registros, hoy);
+            const ausenciasMes = obtenerAusenciasHabitualesDelMes(miembro, registros, resultadoAsistencias.data || [], hoy);
             if (ausenciasMes >= 2) {
                 alertas.push({ tipo: "mes", miembro, ausenciasMes });
             }
