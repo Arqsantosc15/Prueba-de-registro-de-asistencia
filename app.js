@@ -93,6 +93,12 @@ let listaAlertasAsistencia;
 let resumenAlertasAsistencia;
 let btnActualizarAlertasAsistencia;
 
+// Cumpleaños
+let seccionCumpleanosMiembros;
+let mesCumpleanos;
+let listaCumpleanos;
+let resumenCumpleanos;
+
 // Reporte
 let tipoReporte;
 let fechaReporte;
@@ -432,6 +438,7 @@ function mostrarLogin() {
         "btnGuardarAsistencia",
         "listaAsistencia",
         "seccionAlertasAsistencia",
+        "seccionCumpleanosMiembros",
         "mesReporte",
         "btnVerReporte",
         "resultadoReporte",
@@ -475,6 +482,7 @@ function mostrarSistema() {
     const botonGuardarAsistencia = document.getElementById("btnGuardarAsistencia");
     const listaAsistenciaElemento = document.getElementById("listaAsistencia");
     const seccionAlertas = document.getElementById("seccionAlertasAsistencia");
+    const seccionCumpleanos = document.getElementById("seccionCumpleanosMiembros");
     const seccionReporte = document.getElementById("seccionReporte");
 
     [
@@ -487,10 +495,18 @@ function mostrarSistema() {
         botonGuardarAsistencia,
         listaAsistenciaElemento,
         seccionAlertas,
+        seccionCumpleanos,
         seccionReporte
     ].forEach(elemento => {
         if (elemento) elemento.style.display = "none";
     });
+
+    const rolesConAccesoCumpleanos = [
+        "administrador", "secretario", "pastor", "lider", "multimedia", "miembro"
+    ];
+    if (rolesConAccesoCumpleanos.includes(rolUsuarioActual) && seccionCumpleanos) {
+        seccionCumpleanos.style.display = "";
+    }
 
     if (rolUsuarioActual === "administrador" || rolUsuarioActual === "secretario") {
         [seccionNuevoMiembro, seccionMiembrosRegistrados, seccionControlAsistencia, seccionReporte]
@@ -666,6 +682,7 @@ function iniciarAplicacionUnaVez() {
     inicializarDetallesMiembro();
     configurarCamposVisita();
     inicializarAlertasAsistencia();
+    inicializarCumpleanos();
 }
 
 // ==========================================================
@@ -797,6 +814,22 @@ function esMinisterioProtegidoDeAutomatizacion(ministerio) {
         "evangelismo",
         "ujieres"
     ].includes(valor);
+}
+
+function obtenerMinisterioMostrado(miembro) {
+    const ministerio = String(miembro?.ministerio || "").trim();
+    const ministerioNormalizado = normalizarMinisterioParaComparacion(ministerio);
+
+    if (ministerioNormalizado === "amigos") {
+        const sexo = String(miembro?.sexo || "")
+            .trim()
+            .toLocaleLowerCase();
+
+        if (sexo === "mujer") return "Amiga";
+        if (sexo === "hombre") return "Amigo";
+    }
+
+    return ministerio || "Sin ministerio";
 }
 
 function puedeAplicarAutomatizacionDeEdad() {
@@ -1095,6 +1128,7 @@ async function cargarMiembros() {
         }
 
         mostrarMiembros(miembrosPermitidosActuales);
+        renderizarCumpleanosMiembros();
     } catch (error) {
         console.error("Error cargando miembros:", error);
         listaMiembros.innerHTML = `
@@ -1194,10 +1228,7 @@ if (contadorTotal) {
 
                 <p>
                     ⛪
-                    ${escaparHTML(
-                        miembro.ministerio ||
-                        "Sin ministerio"
-                    )}
+                    ${escaparHTML(obtenerMinisterioMostrado(miembro))}
                 </p>
 
                 <p>
@@ -1892,7 +1923,7 @@ async function abrirDetallesMiembro(id) {
         contenido.innerHTML = `
             <div class="detalles-cabecera">
                 ${fotoHTML}
-                <div><h3 class="detalles-nombre">${escaparHTML(miembro.nombre || "")}</h3><p class="detalles-subtitulo">${escaparHTML(miembro.ministerio || "Sin ministerio")}</p></div>
+                <div><h3 class="detalles-nombre">${escaparHTML(miembro.nombre || "")}</h3><p class="detalles-subtitulo">${escaparHTML(obtenerMinisterioMostrado(miembro))}</p></div>
             </div>
             <div class="detalles-datos">
                 <div class="detalle-dato"><strong>Sexo</strong><span>${escaparHTML(miembro.sexo || "No registrado")}</span></div>
@@ -2271,10 +2302,7 @@ async function cargarListaAsistencia() {
                     </strong>
 
                     <small>
-                        ${escapeHTML(
-                            miembro.ministerio ||
-                            "Sin ministerio"
-                        )}
+                        ${escapeHTML(obtenerMinisterioMostrado(miembro))}
                     </small>
 
                     ${
@@ -2422,6 +2450,101 @@ async function guardarAsistencia() {
 }
 
 
+
+// ==========================================================
+// CUMPLEAÑOS DE LOS MIEMBROS
+// ==========================================================
+
+function inicializarCumpleanos() {
+    seccionCumpleanosMiembros = document.getElementById("seccionCumpleanosMiembros");
+    mesCumpleanos = document.getElementById("mesCumpleanos");
+    listaCumpleanos = document.getElementById("listaCumpleanos");
+    resumenCumpleanos = document.getElementById("resumenCumpleanos");
+
+    if (mesCumpleanos) {
+        const mesActual = new Date().getMonth();
+        mesCumpleanos.value = String(mesActual);
+        mesCumpleanos.addEventListener("change", renderizarCumpleanosMiembros);
+    }
+
+    renderizarCumpleanosMiembros();
+}
+
+function obtenerNombreMesCumpleanos(numeroMes) {
+    const meses = [
+        "Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio",
+        "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"
+    ];
+    return meses[numeroMes] || "";
+}
+
+function obtenerDiaCumpleanos(fechaNacimiento) {
+    if (!fechaNacimiento) return null;
+    const partes = String(fechaNacimiento).split("-");
+    if (partes.length !== 3) return null;
+
+    const mes = Number(partes[1]);
+    const dia = Number(partes[2]);
+
+    if (!Number.isInteger(mes) || !Number.isInteger(dia) || mes < 1 || mes > 12 || dia < 1 || dia > 31) {
+        return null;
+    }
+
+    return { mes: mes - 1, dia };
+}
+
+function renderizarCumpleanosMiembros() {
+    if (!listaCumpleanos || !resumenCumpleanos) return;
+
+    const mesSeleccionado = mesCumpleanos
+        ? Number(mesCumpleanos.value)
+        : new Date().getMonth();
+
+    const miembros = Array.isArray(miembrosPermitidosActuales)
+        ? miembrosPermitidosActuales
+        : [];
+
+    const cumpleanos = miembros
+        .map(miembro => {
+            const fecha = obtenerDiaCumpleanos(miembro.fecha_nacimiento);
+            if (!fecha || fecha.mes !== mesSeleccionado) return null;
+            return {
+                miembro,
+                dia: fecha.dia
+            };
+        })
+        .filter(Boolean)
+        .sort((a, b) => {
+            if (a.dia !== b.dia) return a.dia - b.dia;
+            return String(a.miembro.nombre || "").localeCompare(String(b.miembro.nombre || ""), "es", { sensitivity: "base" });
+        });
+
+    const nombreMes = obtenerNombreMesCumpleanos(mesSeleccionado);
+    resumenCumpleanos.textContent = `${cumpleanos.length} ${cumpleanos.length === 1 ? "cumpleaños" : "cumpleaños"} en ${nombreMes}`;
+
+    if (!cumpleanos.length) {
+        listaCumpleanos.innerHTML = `
+            <div class="cumpleanos-sin-datos">
+                <strong>📅 No hay cumpleaños registrados</strong>
+                <span>No hay miembros con cumpleaños registrado en ${escaparHTML(nombreMes)}.</span>
+            </div>
+        `;
+        return;
+    }
+
+    listaCumpleanos.innerHTML = cumpleanos.map(({ miembro, dia }) => `
+        <div class="cumpleanos-card">
+            <div class="cumpleanos-dia">
+                <span class="cumpleanos-dia-numero">${dia}</span>
+                <span class="cumpleanos-dia-texto">${escaparHTML(nombreMes)}</span>
+            </div>
+            <div class="cumpleanos-info">
+                <strong>🎂 ${escaparHTML(miembro.nombre || "Sin nombre")}</strong>
+                <span>${escaparHTML(obtenerMinisterioMostrado(miembro))}</span>
+            </div>
+        </div>
+    `).join("");
+}
 
 // ==========================================================
 // ALERTAS DE ASISTENCIA
@@ -2648,9 +2771,9 @@ async function cargarAlertasAsistencia() {
             const tarjeta = document.createElement("div");
             tarjeta.className = alerta.tipo === "semanas" ? "alerta-card alerta-roja" : "alerta-card alerta-naranja";
             if (alerta.tipo === "semanas") {
-                tarjeta.innerHTML = `<div class="alerta-icono">🔴</div><div class="alerta-contenido"><strong>2 semanas consecutivas sin asistir</strong><span>${escapeHTML(alerta.miembro.nombre || "Sin nombre")} · ${escapeHTML(alerta.miembro.ministerio || "Sin ministerio")}</span><small>Semanas: ${formatearFechaCorta(alerta.semanas.anterior.lunes)}–${formatearFechaCorta(alerta.semanas.anterior.domingo)} y ${formatearFechaCorta(alerta.semanas.actual.lunes)}–${formatearFechaCorta(alerta.semanas.actual.domingo)}</small></div>`;
+                tarjeta.innerHTML = `<div class="alerta-icono">🔴</div><div class="alerta-contenido"><strong>2 semanas consecutivas sin asistir</strong><span>${escapeHTML(alerta.miembro.nombre || "Sin nombre")} · ${escapeHTML(obtenerMinisterioMostrado(alerta.miembro))}</span><small>Semanas: ${formatearFechaCorta(alerta.semanas.anterior.lunes)}–${formatearFechaCorta(alerta.semanas.anterior.domingo)} y ${formatearFechaCorta(alerta.semanas.actual.lunes)}–${formatearFechaCorta(alerta.semanas.actual.domingo)}</small></div>`;
             } else {
-                tarjeta.innerHTML = `<div class="alerta-icono">🟠</div><div class="alerta-contenido"><strong>${alerta.ausenciasMes} ausencias en día habitual este mes</strong><span>${escapeHTML(alerta.miembro.nombre || "Sin nombre")} · ${escapeHTML(alerta.miembro.ministerio || "Sin ministerio")}</span></div>`;
+                tarjeta.innerHTML = `<div class="alerta-icono">🟠</div><div class="alerta-contenido"><strong>${alerta.ausenciasMes} ausencias en día habitual este mes</strong><span>${escapeHTML(alerta.miembro.nombre || "Sin nombre")} · ${escapeHTML(obtenerMinisterioMostrado(alerta.miembro))}</span></div>`;
             }
             listaAlertasAsistencia.appendChild(tarjeta);
         });
@@ -2970,7 +3093,7 @@ async function cargarReporte() {
                 <div class="reporte-info">
                     <h3>${escaparHTML(miembro.nombre || "")}</h3>
                     <p>📞 ${escaparHTML(miembro.telefono || "Sin teléfono")}</p>
-                    <p>⛪ ${escaparHTML(miembro.ministerio || "Sin ministerio")}</p>
+                    <p>⛪ ${escaparHTML(obtenerMinisterioMostrado(miembro))}</p>
                     <p>📅 ${escaparHTML(obtenerDias(miembro) || "Sin días registrados")}</p>
                 </div>
                 <div class="reporte-estadistica">
