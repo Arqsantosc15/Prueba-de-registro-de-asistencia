@@ -3251,3 +3251,161 @@ main {
 .alertas-asistencia .lista-alertas::-webkit-scrollbar-thumb:hover {
     background: #163a5c;
 }
+
+/* ==========================================================
+   PASO 10 — DISEÑO DEFINITIVO CONTROL + REPORTE
+   Referencia: PC + teléfono horizontal + teléfono vertical
+   ========================================================== */
+
+/* CONTROL DE ASISTENCIA
+   PC y teléfono horizontal: dos columnas iguales.
+   Los campos ocupan el ancho de su columna, como en la referencia.
+*/
+#seccionControlAsistencia .filtros-asistencia,
+#seccionAsistencia .filtros-asistencia,
+.asistencia .filtros-asistencia,
+.seccion-asistencia .filtros-asistencia {
+    display: grid !important;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) !important;
+    gap: 12px 18px !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    box-sizing: border-box !important;
+}
+
+#seccionControlAsistencia .filtros-asistencia .campo-asistencia,
+#seccionAsistencia .filtros-asistencia .campo-asistencia,
+.asistencia .filtros-asistencia .campo-asistencia,
+.seccion-asistencia .filtros-asistencia .campo-asistencia {
+    width: 100% !important;
+    max-width: none !important;
+    min-width: 0 !important;
+    justify-self: stretch !important;
+    box-sizing: border-box !important;
+}
+
+#seccionControlAsistencia .filtros-asistencia .campo-asistencia input,
+#seccionControlAsistencia .filtros-asistencia .campo-asistencia select,
+#seccionAsistencia .filtros-asistencia .campo-asistencia input,
+#seccionAsistencia .filtros-asistencia .campo-asistencia select,
+.asistencia .filtros-asistencia .campo-asistencia input,
+.asistencia .filtros-asistencia .campo-asistencia select,
+.seccion-asistencia .filtros-asistencia .campo-asistencia input,
+.seccion-asistencia .filtros-asistencia .campo-asistencia select {
+    width: 100% !important;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+}
+
+/* REPORTE DE ASISTENCIA
+   Mismos parámetros de distribución:
+   - PC/horizontal: dos columnas iguales.
+   - vertical: una columna.
+   - Ver reporte: ancho completo debajo de los controles.
+*/
+#seccionReporte .reporte-config-multi,
+.reporte .reporte-config-multi {
+    display: grid !important;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) !important;
+    gap: 12px 18px !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    box-sizing: border-box !important;
+    align-items: end !important;
+}
+
+#seccionReporte .reporte-config-multi .campo,
+.reporte .reporte-config-multi .campo {
+    width: 100% !important;
+    max-width: none !important;
+    min-width: 0 !important;
+    justify-self: stretch !important;
+    box-sizing: border-box !important;
+}
+
+#seccionReporte .reporte-config-multi .campo input,
+#seccionReporte .reporte-config-multi .campo select,
+.reporte .reporte-config-multi .campo input,
+.reporte .reporte-config-multi .campo select {
+    width: 100% !important;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+}
+
+#seccionReporte .reporte-config-multi .btn-reporte,
+.reporte .reporte-config-multi .btn-reporte {
+    grid-column: 1 / -1 !important;
+    width: 100% !important;
+    max-width: none !important;
+    min-width: 0 !important;
+    box-sizing: border-box !important;
+}
+
+/* TELÉFONO VERTICAL
+   Fecha/Servicio uno debajo del otro y a todo el ancho interno.
+   Reporte usa la misma lógica.
+*/
+@media screen and (max-width: 680px) and (orientation: portrait) {
+    #seccionControlAsistencia .filtros-asistencia,
+    #seccionAsistencia .filtros-asistencia,
+    .asistencia .filtros-asistencia,
+    .seccion-asistencia .filtros-asistencia {
+        grid-template-columns: minmax(0, 1fr) !important;
+        gap: 12px !important;
+    }
+
+    #seccionControlAsistencia .filtros-asistencia .campo-asistencia,
+    #seccionAsistencia .filtros-asistencia .campo-asistencia,
+    .asistencia .filtros-asistencia .campo-asistencia,
+    .seccion-asistencia .filtros-asistencia .campo-asistencia {
+        width: 100% !important;
+        max-width: none !important;
+        justify-self: stretch !important;
+    }
+
+    #seccionReporte .reporte-config-multi,
+    .reporte .reporte-config-multi {
+        grid-template-columns: minmax(0, 1fr) !important;
+        gap: 12px !important;
+    }
+
+    #seccionReporte .reporte-config-multi .campo,
+    .reporte .reporte-config-multi .campo {
+        width: 100% !important;
+        max-width: none !important;
+        justify-self: stretch !important;
+    }
+
+    #seccionReporte .reporte-config-multi .btn-reporte,
+    .reporte .reporte-config-multi .btn-reporte {
+        grid-column: 1 / -1 !important;
+    }
+}
+
+/* ALERTAS: conservar la barra de desplazamiento interna */
+#seccionAlertasAsistencia .lista-alertas,
+.alertas-asistencia .lista-alertas {
+    max-height: 360px !important;
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
+    scrollbar-gutter: stable !important;
+    scrollbar-width: auto !important;
+    scrollbar-color: #1f527f #e9eef3 !important;
+}
+
+#seccionAlertasAsistencia .lista-alertas::-webkit-scrollbar,
+.alertas-asistencia .lista-alertas::-webkit-scrollbar {
+    width: 10px !important;
+}
+
+#seccionAlertasAsistencia .lista-alertas::-webkit-scrollbar-track,
+.alertas-asistencia .lista-alertas::-webkit-scrollbar-track {
+    background: #e9eef3 !important;
+    border-radius: 10px !important;
+}
+
+#seccionAlertasAsistencia .lista-alertas::-webkit-scrollbar-thumb,
+.alertas-asistencia .lista-alertas::-webkit-scrollbar-thumb {
+    background: #1f527f !important;
+    border-radius: 10px !important;
+}
