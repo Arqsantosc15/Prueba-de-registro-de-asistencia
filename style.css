@@ -3187,3 +3187,53 @@ main {
         max-height: 55vh !important;
     }
 }
+
+/* ==========================================================
+   ETAPA 1 - IGUALAR TAMAÑOS DE CONTROLES
+   ==========================================================
+   Solo presentación. No modifica la lógica de asistencia ni
+   la lógica del reporte.
+*/
+
+/* Control de asistencia: Fecha y Servicio/Reunión exactamente
+   con el mismo ancho disponible. */
+#seccionControlAsistencia .filtros-asistencia,
+#seccionAsistencia .filtros-asistencia,
+.asistencia .filtros-asistencia,
+.seccion-asistencia .filtros-asistencia {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) !important;
+}
+
+#seccionControlAsistencia .campo-asistencia,
+#seccionAsistencia .campo-asistencia,
+.asistencia .campo-asistencia,
+.seccion-asistencia .campo-asistencia {
+    width: 100% !important;
+    min-width: 0 !important;
+    box-sizing: border-box !important;
+}
+
+/* Reporte: Tipo de reporte y selector de período exactamente
+   con el mismo ancho. */
+#seccionReporte .reporte-config-multi,
+.reporte .reporte-config-multi {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) !important;
+}
+
+#seccionReporte .reporte-config-multi > .campo,
+.reporte .reporte-config-multi > .campo {
+    width: 100% !important;
+    min-width: 0 !important;
+    box-sizing: border-box !important;
+}
+
+#seccionReporte #controlFechaReporte,
+#seccionReporte #controlMesReporte,
+#seccionReporte #controlAnioReporte,
+.reporte #controlFechaReporte,
+.reporte #controlMesReporte,
+.reporte #controlAnioReporte {
+    width: 100% !important;
+    min-width: 0 !important;
+    box-sizing: border-box !important;
+}
