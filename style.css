@@ -3104,3 +3104,86 @@ main {
         grid-template-columns: 1fr !important;
     }
 }
+
+/* ==========================================================
+   CORRECCIÓN - NUEVO MIEMBRO: NO OCULTAR CONTENIDO
+   ==========================================================
+   El panel mantiene su altura para no alterar la distribución
+   de escritorio, pero cuando el formulario crece se puede
+   desplazar internamente para mostrar todos los campos y el
+   botón Guardar. Esto también corrige teléfono horizontal.
+*/
+#seccionNuevoMiembro {
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
+    min-width: 0 !important;
+    box-sizing: border-box !important;
+    scrollbar-width: auto;
+    scrollbar-color: #1f527f #e9eef3;
+}
+
+#seccionNuevoMiembro form {
+    min-width: 0 !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
+}
+
+#seccionNuevoMiembro input,
+#seccionNuevoMiembro select,
+#seccionNuevoMiembro button,
+#seccionNuevoMiembro .campo,
+#seccionNuevoMiembro .dias {
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+}
+
+/* En vertical el panel ya puede crecer con el contenido. */
+@media (max-width: 680px) {
+    #seccionNuevoMiembro {
+        overflow-y: visible !important;
+        overflow-x: hidden !important;
+    }
+}
+
+/* ==========================================================
+   PASO 8B — BARRA DE DESPLAZAMIENTO DE ALERTAS
+   ========================================================== */
+#seccionAlertasAsistencia .lista-alertas,
+.alertas-asistencia .lista-alertas {
+    max-height: 420px !important;
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
+    padding: 4px 10px 8px 2px !important;
+    scrollbar-width: auto;
+    scrollbar-color: #1f527f #e9eef3;
+}
+
+#seccionAlertasAsistencia .lista-alertas::-webkit-scrollbar,
+.alertas-asistencia .lista-alertas::-webkit-scrollbar {
+    width: 12px;
+}
+
+#seccionAlertasAsistencia .lista-alertas::-webkit-scrollbar-track,
+.alertas-asistencia .lista-alertas::-webkit-scrollbar-track {
+    background: #e9eef3;
+    border-radius: 10px;
+}
+
+#seccionAlertasAsistencia .lista-alertas::-webkit-scrollbar-thumb,
+.alertas-asistencia .lista-alertas::-webkit-scrollbar-thumb {
+    background: #1f527f;
+    border-radius: 10px;
+    border: 2px solid #e9eef3;
+}
+
+#seccionAlertasAsistencia .lista-alertas::-webkit-scrollbar-thumb:hover,
+.alertas-asistencia .lista-alertas::-webkit-scrollbar-thumb:hover {
+    background: #174364;
+}
+
+@media screen and (max-width: 680px) {
+    #seccionAlertasAsistencia .lista-alertas,
+    .alertas-asistencia .lista-alertas {
+        max-height: 55vh !important;
+    }
+}
