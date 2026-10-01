@@ -2869,6 +2869,55 @@ main {
     margin: 4px 0;
 }
 
+.condicion-medica-editor {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding: 12px 14px;
+    background: #f7f9fb;
+    border: 1px solid #dce4ea;
+    border-left: 4px solid #1f527f;
+    border-radius: 6px;
+}
+
+.condicion-medica-editor label {
+    font-weight: 700;
+    color: #4b6170;
+    font-size: 12px;
+}
+
+.condicion-medica-editor textarea {
+    width: 100%;
+    min-height: 78px;
+    box-sizing: border-box;
+    resize: vertical;
+    padding: 9px 10px;
+    border: 1px solid #cbd7df;
+    border-radius: 6px;
+    font: inherit;
+    color: #273e4e;
+    background: #fff;
+}
+
+.btn-guardar-condicion-medica {
+    align-self: flex-start;
+    border: 0;
+    border-radius: 6px;
+    padding: 9px 14px;
+    cursor: pointer;
+    font-weight: 700;
+}
+
+.btn-guardar-condicion-medica:disabled {
+    cursor: wait;
+    opacity: .65;
+}
+
+.condicion-medica-editor small {
+    color: #667987;
+    font-size: 11px;
+}
+
 .detalles-privado {
     border-left: 4px solid #1f527f;
     background: #f7f9fb;
