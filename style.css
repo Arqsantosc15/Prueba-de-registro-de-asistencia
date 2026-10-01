@@ -3458,3 +3458,170 @@ main {
     background: #1f527f !important;
     border-radius: 10px !important;
 }
+
+
+/* ==========================================================
+   PASO 15 — CUMPLEAÑOS DE LOS MIEMBROS
+   ========================================================== */
+.cumpleanos-miembros {
+    width: 100%;
+    margin: 24px 0;
+    grid-column: 1 / -1 !important;
+}
+
+.cumpleanos-contenedor {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 20px;
+    border-radius: 12px;
+    background: #ffffff;
+    border: 1px solid #d9e1e8;
+    box-shadow: 0 3px 12px rgba(0, 0, 0, 0.06);
+}
+
+.cumpleanos-titulo {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    margin-bottom: 16px;
+}
+
+.cumpleanos-titulo h2 {
+    margin: 0;
+}
+
+.subtitulo-cumpleanos {
+    margin: 5px 0 0;
+}
+
+.cumpleanos-selector {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    min-width: 210px;
+}
+
+.cumpleanos-selector label {
+    font-weight: 600;
+}
+
+.cumpleanos-selector select {
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.resumen-cumpleanos {
+    margin-bottom: 14px;
+    font-weight: 600;
+}
+
+.lista-cumpleanos {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+}
+
+.cumpleanos-card {
+    display: grid;
+    grid-template-columns: 76px minmax(0, 1fr);
+    align-items: center;
+    gap: 12px;
+    padding: 12px;
+    border: 1px solid #e1e6eb;
+    border-radius: 10px;
+    min-width: 0;
+    box-sizing: border-box;
+}
+
+.cumpleanos-dia {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 58px;
+    border-radius: 10px;
+    background: #f3f5f7;
+    text-align: center;
+}
+
+.cumpleanos-dia-numero {
+    font-size: 24px;
+    font-weight: 700;
+    line-height: 1;
+}
+
+.cumpleanos-dia-texto {
+    margin-top: 4px;
+    font-size: 11px;
+}
+
+.cumpleanos-info {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    min-width: 0;
+}
+
+.cumpleanos-info strong,
+.cumpleanos-info span {
+    overflow-wrap: anywhere;
+}
+
+.cumpleanos-sin-datos {
+    grid-column: 1 / -1;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    padding: 14px;
+    border-radius: 10px;
+    border: 1px solid #d9e1e8;
+}
+
+@media (max-width: 700px) {
+    .cumpleanos-titulo {
+        align-items: stretch;
+        flex-direction: column;
+    }
+
+    .cumpleanos-selector {
+        width: 100%;
+        min-width: 0;
+    }
+
+    .lista-cumpleanos {
+        grid-template-columns: 1fr;
+    }
+}
+
+
+/* ==========================================================
+   PASO 15 - BARRA DE DESPLAZAMIENTO EN CUMPLEAÑOS
+   ========================================================== */
+.lista-cumpleanos {
+    max-height: 360px;
+    overflow-y: auto;
+    overflow-x: hidden;
+    padding-right: 8px;
+    scrollbar-width: auto;
+    scrollbar-color: #1f527f #e9eef3;
+}
+
+.lista-cumpleanos::-webkit-scrollbar {
+    width: 12px;
+}
+
+.lista-cumpleanos::-webkit-scrollbar-track {
+    background: #e9eef3;
+    border-radius: 10px;
+}
+
+.lista-cumpleanos::-webkit-scrollbar-thumb {
+    background: #1f527f;
+    border-radius: 10px;
+    border: 2px solid #e9eef3;
+}
+
+.lista-cumpleanos::-webkit-scrollbar-thumb:hover {
+    background: #174364;
+}
