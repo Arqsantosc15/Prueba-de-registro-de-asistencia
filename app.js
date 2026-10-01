@@ -1689,6 +1689,27 @@ function formatearFechaDetalle(fecha) {
     return `${partes[2]}/${partes[1]}/${partes[0]}`;
 }
 
+function formatearCumpleanosDetalle(fecha) {
+    if (!fecha) return "No registrado";
+
+    const partes = String(fecha).split("-");
+    if (partes.length !== 3) return String(fecha);
+
+    const mes = Number(partes[1]);
+    const dia = Number(partes[2]);
+
+    const nombresMeses = [
+        "enero", "febrero", "marzo", "abril", "mayo", "junio",
+        "julio", "agosto", "septiembre", "octubre", "noviembre", "diciembre"
+    ];
+
+    if (mes < 1 || mes > 12 || dia < 1 || dia > 31) {
+        return String(fecha);
+    }
+
+    return `${dia} de ${nombresMeses[mes - 1]}`;
+}
+
 function obtenerRangoDetalle(tipo) {
     const hoy = new Date();
     hoy.setHours(12, 0, 0, 0);
@@ -1729,6 +1750,58 @@ function construirRegistrosDetalle(registros, limite = 12) {
     let html = `<ul class="detalles-registros">${visibles.map(r => `<li><strong>${escaparHTML(formatearFechaDetalle(r.fecha))}</strong> — ${escaparHTML(r.servicio || "Servicio")}</li>`).join("")}</ul>`;
     if (registros.length > limite) html += `<p class="mensaje">Mostrando ${limite} de ${registros.length} registros.</p>`;
     return html;
+}
+
+async function guardarCondicionMedica(miembroId) {
+    if (rolUsuarioActual !== "administrador") {
+        alert("❌ Solo el Administrador puede modificar la condición médica.");
+        return;
+    }
+
+    const campo = document.getElementById("condicionMedicaDetalle");
+    const boton = document.getElementById("btnGuardarCondicionMedica");
+    if (!campo) return;
+
+    const condicion = String(campo.value || "").trim();
+    if (boton) {
+        boton.disabled = true;
+        boton.textContent = "⏳ Guardando...";
+    }
+
+    try {
+        let resultado;
+
+        if (!condicion) {
+            resultado = await supabaseClient
+                .from("miembros_condiciones_medicas")
+                .delete()
+                .eq("miembro_id", miembroId);
+        } else {
+            resultado = await supabaseClient
+                .from("miembros_condiciones_medicas")
+                .upsert({
+                    miembro_id: miembroId,
+                    condicion_medica: condicion,
+                    actualizado_en: new Date().toISOString()
+                }, { onConflict: "miembro_id" });
+        }
+
+        if (resultado.error) throw resultado.error;
+
+        alert(condicion
+            ? "✅ Condición médica guardada correctamente."
+            : "✅ Condición médica eliminada correctamente.");
+
+        await abrirDetallesMiembro(miembroId);
+    } catch (error) {
+        console.error("Error guardando condición médica:", error);
+        alert("❌ No se pudo guardar la condición médica.\n\n" + (error.message || error));
+    } finally {
+        if (boton) {
+            boton.disabled = false;
+            boton.textContent = "💾 Guardar condición médica";
+        }
+    }
 }
 
 async function abrirDetallesMiembro(id) {
@@ -1797,11 +1870,24 @@ async function abrirDetallesMiembro(id) {
         const fotoHTML = miembro.foto_url
             ? `<img src="${escaparHTML(miembro.foto_url)}" alt="Foto de ${escaparHTML(miembro.nombre || "miembro")}" class="detalles-foto">`
             : `<div class="detalles-foto" style="display:flex;align-items:center;justify-content:center;font-size:34px;">👤</div>`;
+        const condicionValor = condicionMedica?.condicion_medica || "";
         const condicionHTML = condicionMedica?.condicion_medica
             ? escaparHTML(condicionMedica.condicion_medica)
             : errorCondicionMedica
                 ? "No disponible por permisos de base de datos"
                 : "No registrada";
+        const editorCondicionHTML = rolUsuarioActual === "administrador"
+            ? `
+                <div class="condicion-medica-editor">
+                    <label for="condicionMedicaDetalle">Condición médica</label>
+                    <textarea id="condicionMedicaDetalle" rows="3" placeholder="Escriba la condición médica, si corresponde...">${escaparHTML(condicionValor)}</textarea>
+                    <button type="button" id="btnGuardarCondicionMedica" class="btn-guardar-condicion-medica" onclick="guardarCondicionMedica(${Number(id)})">
+                        💾 Guardar condición médica
+                    </button>
+                    <small>Opcional. Deje el campo vacío para eliminarla.</small>
+                </div>
+            `
+            : `<div class="detalles-privado">${condicionHTML}</div>`;
 
         contenido.innerHTML = `
             <div class="detalles-cabecera">
@@ -1810,7 +1896,7 @@ async function abrirDetallesMiembro(id) {
             </div>
             <div class="detalles-datos">
                 <div class="detalle-dato"><strong>Sexo</strong><span>${escaparHTML(miembro.sexo || "No registrado")}</span></div>
-                <div class="detalle-dato"><strong>Fecha de nacimiento</strong><span>${escaparHTML(formatearFechaDetalle(miembro.fecha_nacimiento))}</span></div>
+                <div class="detalle-dato"><strong>🎂 Cumpleaños</strong><span>${escaparHTML(formatearCumpleanosDetalle(miembro.fecha_nacimiento))}</span></div>
                 <div class="detalle-dato"><strong>Edad</strong><span>${escaparHTML(edadTexto)}</span></div>
                 <div class="detalle-dato"><strong>Dónde vive</strong><span>${escaparHTML(miembro.domicilio || "No registrado")}</span></div>
                 <div class="detalle-dato"><strong>Teléfono</strong><span>${escaparHTML(miembro.telefono || "No registrado")}</span></div>
@@ -1818,7 +1904,7 @@ async function abrirDetallesMiembro(id) {
             </div>
             <div class="detalles-seccion"><h3>📊 Asistencia</h3><div class="detalles-asistencia-grid">${periodos.map(p => `<div class="detalle-periodo"><span class="numero">${p.cantidad}</span><span class="texto">${p.texto}</span></div>`).join("")}</div></div>
             <div class="detalles-seccion"><h3>📅 Registros de asistencia</h3>${periodos.map(p => `<div class="detalle-dato" style="margin-bottom:8px;"><strong>${p.titulo}</strong>${construirRegistrosDetalle(p.registros)}</div>`).join("")}</div>
-            <div class="detalles-seccion"><h3>🔒 Información médica</h3><div class="detalles-privado">${condicionHTML}</div></div>
+            <div class="detalles-seccion"><h3>🔒 Información médica</h3>${rolUsuarioActual === "administrador" ? editorCondicionHTML : `<div class="detalles-privado">${condicionHTML}</div>`}</div>
         `;
     } catch (error) {
         console.error("Error cargando detalles del miembro:", error);
